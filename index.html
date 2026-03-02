@@ -1000,6 +1000,17 @@ function closeSidebar() {
 // Init
 renderHistory();
 
+// Reorder welcome: chips juste après input, featured-card en bas
+(function(){
+  const inputArea = document.getElementById('input-area');
+  const chips     = document.querySelector('.chips-row');
+  const featured  = document.querySelector('.featured-card');
+  if (inputArea && chips && featured) {
+    inputArea.after(chips);
+    chips.after(featured);
+  }
+})();
+
 // ── Placeholder dynamique ─────────────────────────────────────────────────
 (function(){
   const hints = [
