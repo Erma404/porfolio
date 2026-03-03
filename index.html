@@ -104,15 +104,23 @@ body{
   letter-spacing:.8px;color:var(--text3);padding:0 6px 8px;
 }
 .conv-item{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:9px;
+  display:flex;align-items:center;gap:7px;
+  padding:7px 8px;border-radius:9px;
   cursor:pointer;transition:background .15s;
   font-size:13px;color:var(--text2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-width:0;
 }
 .conv-item:hover{background:var(--chip-bg);color:var(--text)}
 .conv-item.active{background:rgba(91,76,245,0.07);color:var(--accent)}
+.conv-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .conv-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.conv-del{
+  display:none;background:none;border:none;cursor:pointer;
+  color:var(--text3);padding:3px;border-radius:5px;flex-shrink:0;
+  align-items:center;justify-content:center;transition:color .15s,background .15s;
+}
+.conv-item:hover .conv-del{display:flex}
+.conv-del:hover{color:var(--text);background:var(--border)}
 
 .sidebar-bottom{
   padding:12px 10px;border-top:1px solid var(--border);
@@ -170,7 +178,7 @@ body{
 
 /* ── CHAT AREA ── */
 .chat{
-  flex:1;overflow-y:auto;
+  flex:1;overflow-y:auto;overflow-x:hidden;
   display:flex;flex-direction:column;
 }
 
@@ -189,7 +197,7 @@ body{
   letter-spacing:-.02em;margin-bottom:12px;
 }
 .welcome h1 em{font-style:italic;color:var(--accent)}
-.welcome-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:500px}
+.welcome-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:500px;word-break:break-word}
 
 .featured-card{
   background:var(--surface);border:1px solid var(--border);
@@ -971,10 +979,22 @@ function renderHistory() {
   [...convs].reverse().forEach(c => {
     const div = document.createElement('div');
     div.className = 'conv-item' + (c.id === curId ? ' active' : '');
-    div.innerHTML = `<div class="conv-dot"></div><span style="overflow:hidden;text-overflow:ellipsis">${c.title}</span>`;
+    const title = c.title.charAt(0).toUpperCase() + c.title.slice(1);
+    div.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13" style="flex-shrink:0;opacity:.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="conv-item-title">${title}</span>
+      <button class="conv-del" title="Supprimer" onclick="event.stopPropagation();deleteConv('${c.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>`;
     div.onclick = () => loadConv(c.id);
     el.appendChild(div);
   });
+}
+
+function deleteConv(id) {
+  convs = convs.filter(c => c.id !== id);
+  if (curId === id) newChat();
+  else saveHistory();
 }
 
 function loadConv(id) {
