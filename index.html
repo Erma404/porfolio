@@ -121,6 +121,14 @@ body{
 }
 .conv-item:hover .conv-del{display:flex}
 .conv-del:hover{color:var(--text);background:var(--border)}
+/* Swipe to delete */
+.conv-wrap{position:relative;overflow:hidden;border-radius:9px;margin-bottom:1px}
+.conv-swipe-bg{
+  position:absolute;right:0;top:0;bottom:0;width:72px;
+  background:#ef4444;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.conv-item{transition:transform .2s ease;background:transparent;border-radius:9px}
 
 .sidebar-bottom{
   padding:12px 10px;border-top:1px solid var(--border);
@@ -411,7 +419,7 @@ textarea::placeholder{color:var(--text3)}
 .overlay.on{display:block}
 
 @media(max-width:768px){
-  .sidebar{position:fixed;top:0;bottom:0;left:0;z-index:100;transform:translateX(-100%)}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;z-index:100;transform:translateX(-100%);background:#fff;box-shadow:4px 0 24px rgba(22,22,42,0.15)}
   .sidebar.open{transform:translateX(0)}
   .menu-btn{display:flex}
   .welcome,.chips-row,.messages,.input-area{padding-left:16px;padding-right:16px}
@@ -977,6 +985,10 @@ function renderHistory() {
   const el = document.getElementById('history-list');
   el.innerHTML = '';
   [...convs].reverse().forEach(c => {
+    const wrap = document.createElement('div');
+    wrap.className = 'conv-wrap';
+    wrap.innerHTML = `<div class="conv-swipe-bg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>`;
+
     const div = document.createElement('div');
     div.className = 'conv-item' + (c.id === curId ? ' active' : '');
     const title = c.title.charAt(0).toUpperCase() + c.title.slice(1);
@@ -987,7 +999,30 @@ function renderHistory() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>`;
     div.onclick = () => loadConv(c.id);
-    el.appendChild(div);
+
+    // Swipe to delete
+    let tx = 0, swiping = false;
+    div.addEventListener('touchstart', e => { tx = e.touches[0].clientX; swiping = true; div.style.transition = 'none'; }, {passive:true});
+    div.addEventListener('touchmove', e => {
+      if (!swiping) return;
+      const dx = e.touches[0].clientX - tx;
+      if (dx < 0) div.style.transform = `translateX(${Math.max(dx, -72)}px)`;
+    }, {passive:true});
+    div.addEventListener('touchend', e => {
+      if (!swiping) return;
+      swiping = false;
+      div.style.transition = 'transform .2s ease';
+      const dx = e.changedTouches[0].clientX - tx;
+      if (dx < -52) {
+        div.style.transform = 'translateX(-72px)';
+        setTimeout(() => deleteConv(c.id), 180);
+      } else {
+        div.style.transform = '';
+      }
+    }, {passive:true});
+
+    wrap.appendChild(div);
+    el.appendChild(wrap);
   });
 }
 
