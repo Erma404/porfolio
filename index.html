@@ -391,6 +391,8 @@ textarea::placeholder{color:var(--text3)}
   .sidebar.open{transform:translateX(0)}
   .menu-btn{display:flex}
   .welcome,.chips-row,.messages,.input-area{padding-left:16px;padding-right:16px}
+  .back-btn.visible{display:flex;padding:4px 10px;font-size:12px}
+  .topbar-title{font-size:13px}
   .welcome{padding-top:32px}
   .proj-grid{grid-template-columns:1fr}
 }
@@ -536,7 +538,7 @@ const KB = {
 <strong>Les 3 sujets sur lesquels j'ai eu le plus d'impact :</strong><br><br>
 ⚡ <strong>Souscription assurance vie</strong> — correction de friction + expérimentation UX → +20% taux de complétion<br><br>
 🎯 <strong>Anti-churn nudges in-app</strong> — ciblage des segments à risque de décrochage via activation comportementale<br><br>
-🔬 <strong>Cadrage AB tests Acquisition</strong> — j'ai posé les règles du jeu pour qu'on optimise la conversion sans abîmer l'image de la banque
+🔬 <strong>Cadrage AB tests in-app</strong> — j'ai structuré le dispositif d'expérimentation sur l'application Hello Bank! pour optimiser les parcours mobiles avec rigueur
 </div>
 
 <p>Ce que j'apprécie dans ce contexte bancaire, c'est la complexité : il faut constamment arbitrer entre la performance immédiate et la confiance long terme du client.</p>
@@ -612,8 +614,8 @@ const KB = {
 </div>
 
 <div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin:14px 0">
-<strong>3. Encadrement des AB tests Acquisition</strong><br>
-<p style="margin-top:8px;color:var(--text2)">Les équipes Marketing poussaient des variantes qui sortaient clairement de la charte UX de Hello Bank. J'ai cadré le dispositif d'expérimentation pour qu'on puisse tester librement sans fragiliser la crédibilité de l'image bancaire. C'est un arbitrage classique conversion court terme vs réputation long terme.</p>
+<strong>3. Encadrement des AB tests in-app Hello Bank!</strong><br>
+<p style="margin-top:8px;color:var(--text2)">J'ai structuré le dispositif d'expérimentation sur les parcours mobiles de l'application Hello Bank! — hypothèse claire, KPI défini avant le lancement, lecture de data rigoureuse. L'enjeu : tester vite sans fragiliser la crédibilité de l'image bancaire. C'est un arbitrage classique conversion court terme vs réputation long terme.</p>
 </div>
 `,
   experience: `
@@ -725,6 +727,46 @@ const KB = {
 
 <p>Et je ne m'arrête jamais à la livraison — ce qui compte c'est l'adoption réelle et l'impact business concret.</p>
 `,
+  urgences: `
+<h3>🚨 Comment je gère les urgences produit</h3>
+<p>La première chose que je fais face à une urgence, c'est de <strong>refuser de la traiter comme telle tant qu'elle n'est pas qualifiée</strong>. Beaucoup d'"urgences" sont en réalité des demandes prioritaires mal formulées.</p>
+
+<div style="background:rgba(91,76,245,0.06);border-left:3px solid var(--accent);padding:14px 16px;border-radius:8px;margin:14px 0">
+<strong>Mon processus de triage en 3 temps :</strong><br><br>
+🔍 <strong>1. Qualifier l'impact réel</strong> — Combien d'utilisateurs sont affectés ? Quel est le coût business si on n'agit pas dans l'heure ? dans la journée ?<br><br>
+⚖️ <strong>2. Arbitrer en transparence</strong> — Je notifie les parties prenantes, je pose le trade-off clairement : traiter ça maintenant, c'est décaler quoi ? Je ne décide pas seule, mais je structure la décision.<br><br>
+🎯 <strong>3. Définir le "done" avant d'agir</strong> — Une urgence sans critère de résolution devient un gouffre. Je fixe un seuil : "on considère l'incident clos quand le taux d'erreur repasse sous X%."
+</div>
+
+<p>Chez Hello Bank!, j'ai eu un cas concret : un bug bloquant sur le parcours de souscription assurance vie en pleine période de campagne. J'ai coordonné le triage tech, communiqué en temps réel aux équipes Marketing et Conformité, et cadré le correctif avec une fenêtre de déploiement négociée avec la DSI.</p>
+
+<p style="color:var(--text2);font-size:13.5px;margin-top:12px">Ce qui compte : <strong>garder la tête froide, ne pas subir la pression, et maintenir une prise de décision structurée même sous contrainte de temps.</strong></p>
+`,
+  frameworks: `
+<h3>🧰 Mes frameworks du quotidien</h3>
+<p>Je ne suis pas dogmatique sur les frameworks — je les choisis en fonction du contexte. Voici ceux que j'utilise réellement :</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0">
+<div style="background:rgba(91,76,245,0.06);padding:12px;border-radius:10px">
+<strong>🎯 Discovery & Priorisation</strong><br>
+<span style="font-size:13px;color:var(--text2)">RICE scoring, Impact/Effort matrix, Jobs-to-be-Done, OKR pour aligner la roadmap sur les objectifs business</span>
+</div>
+<div style="background:rgba(91,76,245,0.06);padding:12px;border-radius:10px">
+<strong>🔬 Expérimentation</strong><br>
+<span style="font-size:13px;color:var(--text2)">Hypothèse → KPI → test → décision documentée. Je structure chaque AB test avec un plan d'analyse défini avant le lancement</span>
+</div>
+<div style="background:rgba(91,76,245,0.06);padding:12px;border-radius:10px">
+<strong>⚙️ Delivery</strong><br>
+<span style="font-size:13px;color:var(--text2)">Agile Scrum au quotidien, SAFe dans les contextes enterprise (certifiée SAFe Practitioner). User Story Mapping pour structurer le scope</span>
+</div>
+<div style="background:rgba(91,76,245,0.06);padding:12px;border-radius:10px">
+<strong>👤 User Research</strong><br>
+<span style="font-size:13px;color:var(--text2)">Design Thinking, entretiens utilisateurs, analyse des signaux comportementaux (données quantitatives + qualitatif)</span>
+</div>
+</div>
+
+<p>Ce que j'évite : utiliser un framework pour faire "bonne figure" en réunion. Ce qui compte, c'est que la méthode serve la décision — pas l'inverse.</p>
+`,
   default: `
 <p>Bonjour ! Je suis Ernestine, Senior PM / Product Owner spécialisée en banque digitale mobile. Vous pouvez me poser n'importe quelle question sur mon parcours, mes projets ou ma façon de travailler.</p>
 
@@ -788,6 +830,8 @@ function match(t) {
   if (/contact|email|mail|linkedin|joindre|telephone|disponible/.test(s)) return KB.contact;
   if (/outil|tool|figma|jira|sql|utilise|vibe|code|coding/.test(s)) return KB.outil;
   if (/valeur|philosophie|motivation|passion|vision|produit.fonctionne/.test(s)) return KB.valeur;
+  if (/urgence|urgenc|incident|crise|bug|bloquant|feu|prioritaire|imprevu/.test(s)) return KB.urgences;
+  if (/framework|methode|methodolog|scrum|safe|agile|rice|okr|jtbd|jobs.to.be|outil.pm|process/.test(s)) return KB.frameworks;
   return KB.default;
 }
 
