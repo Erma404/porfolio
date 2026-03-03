@@ -391,8 +391,26 @@ textarea::placeholder{color:var(--text3)}
   .sidebar.open{transform:translateX(0)}
   .menu-btn{display:flex}
   .welcome,.chips-row,.messages,.input-area{padding-left:16px;padding-right:16px}
+  /* Topbar mobile */
   .back-btn.visible{display:flex;padding:4px 10px;font-size:12px}
   .topbar-title{font-size:13px}
+  .topbar-badge{display:none}
+
+  /* Bulle utilisateur — ne pas déborder */
+  .message-row.user .bubble{
+    max-width:calc(100% - 52px);
+    word-break:break-word;
+  }
+
+  /* Grilles 2 colonnes dans les réponses → 1 colonne */
+  .bubble div[style*="grid-template-columns:1fr 1fr"],
+  .bubble div[style*="grid-template-columns: 1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+  .bubble div[style*="display:grid"],
+  .bubble div[style*="display: grid"]{
+    grid-template-columns:1fr !important;
+  }
   .welcome{padding-top:32px}
   .proj-grid{grid-template-columns:1fr}
 }
