@@ -8,6 +8,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MD3GTNC4');</script>
 <!-- End Google Tag Manager -->
+<!-- Google Analytics GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H08304PCZX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H08304PCZX');
+</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Ernestine Matjabo — Senior PM / Product Owner</title>
@@ -1153,11 +1161,9 @@ async function send() {
 
   const resp = match(txt);
   const category = Object.keys(KB).find(k => KB[k] === resp) || 'default';
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    event: 'question_asked',
-    question_text: txt.slice(0, 120),
-    question_category: category
+  gtag('event', 'question_asked', {
+    question_category: category,
+    question_text: txt.slice(0, 120)
   });
   const bub = addMsg('ai', '');
   await typeInto(bub, resp);
