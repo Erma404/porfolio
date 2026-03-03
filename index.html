@@ -785,6 +785,26 @@ const KB = {
 
 <p>Ce que j'évite : utiliser un framework pour faire "bonne figure" en réunion. Ce qui compte, c'est que la méthode serve la décision — pas l'inverse.</p>
 `,
+  softskills: `
+<p>Si je devais résumer ce qui me caractérise vraiment, au-delà des méthodes et des outils :</p>
+
+<p><strong>Exigence intellectuelle.</strong> Je ne prends pas une réponse telle quelle. J'ajuste, je corrige, je cherche plus précis, plus juste. Un vrai standard de qualité — et un refus du "à peu près".</p>
+
+<p><strong>Clarté stratégique.</strong> Je sais ce que je veux. Je n'hésite pas — j'affine. Lucidité sur mon positionnement, maturité dans les choix que je fais.</p>
+
+<p><strong>Intelligence relationnelle.</strong> La performance passe aussi par l'équilibre humain. Arbitrer sans créer de tension. Ne pas brusquer. Ce n'est pas juste du business — c'est une conviction.</p>
+
+<p><strong>Capacité d'arbitrage.</strong> Je ne suis pas dans l'exécution passive. Je structure, je décide, j'assume. Quand ça bloque, je pose le cadre qui fait avancer.</p>
+
+<p><strong>Curiosité intellectuelle.</strong> Cuisine, K-dramas, immobilier, tech, innovation… Ce ne sont pas des hobbies au hasard. Ils ont tous le même fil : compréhension, projection, long terme. Je suis naturellement analytique.</p>
+
+<p><strong>Stabilité émotionnelle.</strong> Calme, structurée, sans brusquer. En banque ou en environnement transverse, c'est ce qui permet de tenir dans la durée — et de faire tenir les équipes.</p>
+
+<div style="background:rgba(91,76,245,0.06);padding:14px;border-radius:10px;margin:16px 0">
+<strong>En 5 mots</strong><br><br>
+<span style="font-size:15px;letter-spacing:0.03em">Structurée &nbsp;·&nbsp; Analytique &nbsp;·&nbsp; Exigeante &nbsp;·&nbsp; Calme &nbsp;·&nbsp; Stratégique</span>
+</div>
+`,
   differenciateur: `
 <p>Franchement ? Parce que je ne fais pas semblant avec la data.</p>
 
@@ -931,6 +951,7 @@ function match(t) {
   if (/passion|loisir|dehors|cuisine|kdrama|k.?drama|immobilier|ressource|hobby|temps.libre|vie.perso|week.?end|detente|aimes.tu|aime.faire|dans.la.vie/.test(s)) return KB.passions;
   if (/motiv|prochain.challenge|cherches.dans|enerve|prochain.defi|t.attire|environnement.id/.test(s)) return KB.motivation;
   if (/quotidien|en.equipe|travail.en.groupe|collabor|comment.tu.fonctionne/.test(s)) return KB.equipe;
+  if (/soft.?skill|qualite|atout|ce.qui.te.caract|trait|5.mots|cinq.mots|points.forts|force|ce.que.tu.apportes|exigean|analytique|stabilite/.test(s)) return KB.softskills;
   if (/valeur|philosophie|vision|produit.fonctionne/.test(s)) return KB.valeur;
   if (/urgence|urgenc|incident|crise|bug|bloquant|feu|prioritaire|imprevu/.test(s)) return KB.urgences;
   if (/framework|methode|methodolog|scrum|safe|agile|rice|okr|jtbd|jobs.to.be|outil.pm|process/.test(s)) return KB.frameworks;
