@@ -948,7 +948,7 @@ function match(t) {
   if (/outil|tool|figma|jira|sql|utilise|vibe|code|coding/.test(s)) return KB.outil;
   if (/pourquoi.vous|plutot.qu.une.autre|te.choisir|ce.qui.te.dif|en.quoi.tu.es|differenc/.test(s)) return KB.differenciateur;
   if (/decris.toi|te.decrirais|personnalite|humainement|rationnel|emotionnel|temperament|caractere/.test(s)) return KB.personnalite;
-  if (/passion|loisir|dehors.du.travail|kdrama|k.?drama|cuisine|immobilier|ressource/.test(s)) return KB.passions;
+  if (/passion|loisir|dehors|cuisine|kdrama|k.?drama|immobilier|ressource|hobby|temps.libre|vie.perso|week.?end|detente|aimes.tu|aime.faire|dans.la.vie/.test(s)) return KB.passions;
   if (/motiv|prochain.challenge|cherches.dans|enerve|prochain.defi|t.attire|environnement.id/.test(s)) return KB.motivation;
   if (/quotidien|en.equipe|travail.en.groupe|collabor|comment.tu.fonctionne/.test(s)) return KB.equipe;
   if (/valeur|philosophie|vision|produit.fonctionne/.test(s)) return KB.valeur;
