@@ -124,11 +124,14 @@ body{
 /* Swipe to delete */
 .conv-wrap{position:relative;overflow:hidden;border-radius:9px;margin-bottom:1px}
 .conv-swipe-bg{
-  position:absolute;right:0;top:0;bottom:0;width:72px;
+  position:absolute;right:0;top:0;bottom:0;width:64px;
   background:#ef4444;border-radius:9px;
   display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;
 }
-.conv-item{transition:transform .2s ease;background:transparent;border-radius:9px}
+.conv-wrap.swiping .conv-swipe-bg{opacity:1}
+.conv-item{transition:transform .2s ease;background:#fff;border-radius:9px}
+@media(max-width:768px){.conv-del{display:none !important}}
 
 .sidebar-bottom{
   padding:12px 10px;border-top:1px solid var(--border);
@@ -1001,23 +1004,27 @@ function renderHistory() {
     div.onclick = () => loadConv(c.id);
 
     // Swipe to delete
-    let tx = 0, swiping = false;
-    div.addEventListener('touchstart', e => { tx = e.touches[0].clientX; swiping = true; div.style.transition = 'none'; }, {passive:true});
+    let tx = 0, active = false;
+    div.addEventListener('touchstart', e => { tx = e.touches[0].clientX; active = true; div.style.transition = 'none'; }, {passive:true});
     div.addEventListener('touchmove', e => {
-      if (!swiping) return;
+      if (!active) return;
       const dx = e.touches[0].clientX - tx;
-      if (dx < 0) div.style.transform = `translateX(${Math.max(dx, -72)}px)`;
+      if (dx < -6) {
+        wrap.classList.add('swiping');
+        div.style.transform = `translateX(${Math.max(dx, -64)}px)`;
+      }
     }, {passive:true});
     div.addEventListener('touchend', e => {
-      if (!swiping) return;
-      swiping = false;
+      if (!active) return;
+      active = false;
       div.style.transition = 'transform .2s ease';
       const dx = e.changedTouches[0].clientX - tx;
-      if (dx < -52) {
-        div.style.transform = 'translateX(-72px)';
-        setTimeout(() => deleteConv(c.id), 180);
+      if (dx < -48) {
+        div.style.transform = 'translateX(-64px)';
+        setTimeout(() => deleteConv(c.id), 200);
       } else {
         div.style.transform = '';
+        wrap.classList.remove('swiping');
       }
     }, {passive:true});
 
