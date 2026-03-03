@@ -129,11 +129,12 @@ body{
 .conv-item-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .conv-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
 .conv-del{
-  display:none;background:none;border:none;cursor:pointer;
+  opacity:0;background:none;border:none;cursor:pointer;
   color:var(--text3);padding:3px;border-radius:5px;flex-shrink:0;
-  align-items:center;justify-content:center;transition:color .15s,background .15s;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .15s,color .15s,background .15s;
 }
-.conv-item:hover .conv-del{display:flex}
+.conv-item:hover .conv-del{opacity:1}
 .conv-del:hover{color:var(--text);background:var(--border)}
 /* Swipe to delete */
 .conv-wrap{position:relative;overflow:hidden;border-radius:9px;margin-bottom:1px}
@@ -147,7 +148,7 @@ body{
 .conv-item{transition:transform .2s ease;background:transparent;border-radius:9px}
 @media(max-width:768px){
   .conv-item{background:#fff}
-  .conv-del{display:none !important}
+  .conv-del{opacity:0 !important;pointer-events:none}
 }
 
 .sidebar-bottom{
@@ -1101,11 +1102,20 @@ function loadConv(id) {
   if (!c) return;
   curId = id;
   document.getElementById('messages').innerHTML = '';
-  const welcome = document.getElementById('welcome-wrap');
-  if (welcome) welcome.style.display = 'none';
+  const ww = document.getElementById('welcome-wrap');
+  if (ww) {
+    const ia = document.getElementById('input-area');
+    const chat = document.getElementById('chat');
+    if (ia && ia.closest('#welcome-wrap')) { chat.appendChild(ia); }
+    ww.style.display = 'none';
+    document.getElementById('backBtn')?.classList.add('visible');
+  }
   c.msgs.forEach(m => addMsg(m.role, m.html, false));
   renderHistory();
   closeSidebar();
+  // Scroll to bottom
+  const msgs = document.getElementById('messages');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
 }
 
 // ── State ──────────────────────────────────────────────────────────────
