@@ -144,8 +144,11 @@ body{
   opacity:0;transition:opacity .15s;
 }
 .conv-wrap.swiping .conv-swipe-bg{opacity:1}
-.conv-item{transition:transform .2s ease;background:#fff;border-radius:9px}
-@media(max-width:768px){.conv-del{display:none !important}}
+.conv-item{transition:transform .2s ease;background:transparent;border-radius:9px}
+@media(max-width:768px){
+  .conv-item{background:#fff}
+  .conv-del{display:none !important}
+}
 
 .sidebar-bottom{
   padding:12px 10px;border-top:1px solid var(--border);
@@ -851,6 +854,42 @@ const KB = {
 
 <p style="margin-top:14px;color:var(--text2);font-size:13px">En 5 mots : <strong>Structurée · Analytique · Exigeante · Calme · Curieuse</strong></p>
 `,
+  stakeholders: `
+<p>C'est probablement l'un des sujets où j'ai le plus progressé avec l'expérience.</p>
+
+<p>En banque, tu as rarement un seul décideur. Tu as des équipes tech, des équipes légales, de la conformité, du marketing, du commercial... et tout le monde a un avis. Si tu ne crées pas d'alignement dès le départ, tu perds du temps à chaque étape.</p>
+
+<p>Ma méthode concrète : je cartographie les parties prenantes dès le début d'un projet — qui décide, qui influence, qui est juste consulté. Et je crée un rythme de communication adapté à chacun. Pas le même niveau de détail pour un CODIR et pour un développeur.</p>
+
+<p>Ce que j'évite absolument : les surprises en fin de sprint. Je préfère sur-communiquer en amont que gérer un blocage en dernière minute.</p>
+`,
+  disponibilite: `
+<p>Je suis actuellement disponible et ouverte aux opportunités.</p>
+
+<p>Côté format de travail, je suis à l'aise en hybride — j'aime avoir des moments en présentiel pour les ateliers, les rituels d'équipe, les décisions importantes. Et le remote pour les phases de production qui demandent de la concentration.</p>
+
+<p>Je ne suis pas dans une logique de full remote à tout prix — ce qui compte pour moi, c'est que l'environnement soit sain et que la collaboration soit réelle, peu importe le format.</p>
+
+<p>Si tu veux en savoir plus ou échanger directement, n'hésite pas à me contacter via LinkedIn ou par email.</p>
+`,
+  ambition: `
+<p>Honnêtement, je ne me projette pas avec des plans sur 5 ans très rigides — le contexte change trop vite pour ça.</p>
+
+<p>Ce que je sais, c'est que je veux continuer à évoluer sur des sujets de produit à fort impact. J'aime les environnements où on mesure vraiment ce qu'on fait, où les décisions sont prises sur des données, et où on peut construire quelque chose qui tient dans la durée.</p>
+
+<p>À moyen terme, je suis attirée par des rôles où je peux avoir plus de latitude sur la vision produit — pas juste exécuter une roadmap, mais contribuer à la construire.</p>
+
+<p>Et sur le fond, je veux rester curieuse. Continuer à apprendre, à tester, à comprendre comment les choses évoluent.</p>
+`,
+  management: `
+<p>Je n'ai pas eu de rôle de management d'équipe au sens hiérarchique du terme, mais j'ai animé des équipes pluridisciplinaires au quotidien — devs, designers, data analysts, ops — en mode agile.</p>
+
+<p>Ce que ça m'a appris : le leadership ne passe pas par le titre. Il passe par la clarté. Quand les gens comprennent pourquoi on fait quelque chose, ils s'engagent différemment.</p>
+
+<p>J'ai aussi appris à adapter mon style selon les profils. Certains ont besoin de cadre et de clarté. D'autres ont besoin d'espace. Savoir lire ça, c'est précieux.</p>
+
+<p>Et j'aime vraiment créer une dynamique positive dans une équipe — pas juste livrer des features, mais faire en sorte que les gens aient envie de venir travailler sur le sujet.</p>
+`,
   differenciateur: `
 <p>Franchement ? Parce que je ne fais pas semblant avec la data.</p>
 
@@ -969,7 +1008,7 @@ function match(t) {
   if (/retention|churn|fidelisation|attrition|nudge/.test(s)) return KB.retention;
   if (/experiment|ab.?test|cro|hypothese/.test(s)) return KB.experimentation;
   if (/decision|arbitrage|complexe|conflit|difficil|priorite/.test(s)) return KB.decision;
-  if (/strategie|roadmap|priorisa|vision|probl|type.?probl/.test(s)) return KB.strategie;
+  if (/strategie|roadmap|prioris|backlog|vision|probl|type.?probl/.test(s)) return KB.strategie;
   if (/soft.?skill|qualite.humain|qualite|atout|ce.qui.te.caract|points.forts|force.chez|ce.que.tu.apportes|exigean|stabilite/.test(s)) return KB.softskills;
   if (/decris.toi|te.decrirais|personnalite|humainement|rationnel|emotionnel|temperament|caractere|comment.es.tu|comment.tu.es/.test(s)) return KB.personnalite;
   if (/passion|loisir|dehors|cuisine|kdrama|k.?drama|immobilier|ressource|hobby|temps.libre|vie.perso|week.?end|detente|aimes.tu|aime.faire|dans.la.vie/.test(s)) return KB.passions;
@@ -982,6 +1021,10 @@ function match(t) {
   if (/formation|etude|diplome|certif|thiga/.test(s)) return KB.formation;
   if (/contact|email|mail|linkedin|joindre|telephone|disponible/.test(s)) return KB.contact;
   if (/outil|tool|figma|jira|sql|utilise|vibe|code|coding/.test(s)) return KB.outil;
+  if (/stakeholder|partie.prenante|align|transverse|sponsor|codir|inter.equipe/.test(s)) return KB.stakeholders;
+  if (/disponib|preavis|quand.tu.peux|remote|teletravail|hybride|quand.commencer|poste.en|format.de.travail/.test(s)) return KB.disponibilite;
+  if (/ambition|objectif.de.carri|dans.5.ans|ou.tu.te.vois|vision.carri|evoluer|prochain.etape/.test(s)) return KB.ambition;
+  if (/manag|lead|encadr|hierarch|chef.d.equipe|diriger|animer.une.equipe/.test(s)) return KB.management;
   if (/pourquoi.vous|plutot.qu.une.autre|te.choisir|ce.qui.te.dif|en.quoi.tu.es|differenc/.test(s)) return KB.differenciateur;
   if (/valeur|philosophie|vision|produit.fonctionne/.test(s)) return KB.valeur;
   if (/urgence|urgenc|incident|crise|bug|bloquant|feu|prioritaire|imprevu/.test(s)) return KB.urgences;
