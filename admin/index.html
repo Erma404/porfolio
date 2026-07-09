@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Admin — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap wide">
+  <div id="login-view" class="wrap" style="margin:0 auto">
+    <h1>Admin</h1>
+    <p class="sub">Connexion réservée.</p>
+    <div id="login-msg"></div>
+    <form id="login-form" class="card">
+      <label for="email">Email</label>
+      <input type="email" id="email" required autocomplete="email"/>
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" required autocomplete="current-password"/>
+      <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
+    </form>
+
+    <form id="setpass-form" class="card hidden">
+      <p class="sub" style="margin-bottom:16px">Invitation confirmée — définissez votre mot de passe admin.</p>
+      <label for="setpass">Mot de passe</label>
+      <input type="password" id="setpass" required minlength="8" autocomplete="new-password"/>
+      <button type="submit" class="btn-primary" id="setpass-btn">Définir mon mot de passe</button>
+    </form>
+  </div>
+
+  <div id="admin-view" class="hidden">
+    <nav class="topbar">
+      <strong>Admin — Espace client</strong>
+      <div class="links">
+        <a href="#" id="logout">Déconnexion</a>
+      </div>
+    </nav>
+
+    <div class="card">
+      <h1 style="font-size:16px;margin-bottom:16px">Nouveau client</h1>
+      <div id="create-msg"></div>
+      <form id="create-form">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" required/>
+        <label for="c-email">Email</label>
+        <input type="email" id="c-email" required/>
+        <label for="nom_projet">Nom du projet</label>
+        <input type="text" id="nom_projet" required/>
+        <button type="submit" class="btn-primary" id="create-btn">Créer le client et envoyer les accès</button>
+      </form>
+    </div>
+
+    <h1 style="font-size:16px">Clients</h1>
+    <div id="clients-list" class="card">
+      <p class="sub">Chargement…</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, callFunction } from '/assets/supabase-client.js';
+
+const ADMIN_EMAIL = 'ernestinemtb@gmail.com';
+const loginView = document.getElementById('login-view');
+const adminView = document.getElementById('admin-view');
+
+async function renderClients() {
+  const list = document.getElementById('clients-list');
+  const { data: clients, error } = await supabase
+    .from('clients')
+    .select('id, nom, email, nom_projet, statut, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    list.innerHTML = `<div class="msg error">${error.message}</div>`;
+    return;
+  }
+  if (!clients || clients.length === 0) {
+    list.innerHTML = '<p class="sub" style="margin:0">Aucun client pour l\'instant.</p>';
+    return;
+  }
+  list.innerHTML = `
+    <table>
+      <thead><tr><th>Nom</th><th>Projet</th><th>Statut</th><th>Créé le</th></tr></thead>
+      <tbody>
+        ${clients.map((c) => `
+          <tr class="clickable" data-id="${c.id}">
+            <td>${c.nom}<br/><span class="meta" style="color:var(--text3)">${c.email}</span></td>
+            <td>${c.nom_projet}</td>
+            <td><span class="badge ${c.statut === 'actif' ? 'terminee' : c.statut === 'onboarding' ? 'a_venir' : ''}">${c.statut}</span></td>
+            <td>${new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  list.querySelectorAll('tr[data-id]').forEach((row) => {
+    row.addEventListener('click', () => {
+      window.location.href = `/admin/client/?id=${row.dataset.id}`;
+    });
+  });
+}
+
+async function checkAdmin() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && session.user.email === ADMIN_EMAIL) {
+    loginView.classList.add('hidden');
+    adminView.classList.remove('hidden');
+    renderClients();
+  } else if (session) {
+    await supabase.auth.signOut();
+  }
+}
+
+// Lien d'invitation Supabase (bootstrap admin, usage unique) : la session est déjà active,
+// il ne reste qu'à définir un mot de passe réel.
+if (location.hash.includes('type=invite') || location.hash.includes('type=recovery')) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && session.user.email === ADMIN_EMAIL) {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('setpass-form').classList.remove('hidden');
+  }
+} else {
+  await checkAdmin();
+}
+
+document.getElementById('setpass-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('setpass-btn');
+  btn.disabled = true;
+  const { error } = await supabase.auth.updateUser({ password: document.getElementById('setpass').value });
+  btn.disabled = false;
+  if (error) {
+    alert(error.message);
+    return;
+  }
+  history.replaceState(null, '', location.pathname);
+  document.getElementById('setpass-form').classList.add('hidden');
+  await checkAdmin();
+});
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgBox = document.getElementById('login-msg');
+  msgBox.innerHTML = '';
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  if (error || data.user.email !== ADMIN_EMAIL) {
+    if (!error) await supabase.auth.signOut();
+    msgBox.innerHTML = '<div class="msg error">Accès refusé.</div>';
+    return;
+  }
+  await checkAdmin();
+});
+
+document.getElementById('create-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msgBox = document.getElementById('create-msg');
+  msgBox.innerHTML = '';
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true;
+
+  const nom = document.getElementById('nom').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const nom_projet = document.getElementById('nom_projet').value.trim();
+
+  try {
+    await callFunction('create-client', { nom, email, nom_projet });
+    msgBox.innerHTML = '<div class="msg success">Client créé, accès envoyés par email.</div>';
+    document.getElementById('create-form').reset();
+    renderClients();
+  } catch (err) {
+    msgBox.innerHTML = `<div class="msg error">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  location.reload();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Fiche client — Admin</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap wide">
+  <nav class="topbar">
+    <strong>Admin — Espace client</strong>
+    <div class="links">
+      <a href="/admin/">← Clients</a>
+      <a href="#" id="logout">Déconnexion</a>
+    </div>
+  </nav>
+
+  <div id="content">
+    <p class="sub">Chargement…</p>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireAdminSession, callFunction } from '/assets/supabase-client.js';
+
+const session = await requireAdminSession();
+if (session) {
+  const params = new URLSearchParams(location.search);
+  const clientId = params.get('id');
+  const content = document.getElementById('content');
+
+  if (!clientId) {
+    content.innerHTML = '<div class="msg error">Client introuvable.</div>';
+  } else {
+    await render();
+  }
+
+  async function render() {
+    const { data: client } = await supabase.from('clients').select('*').eq('id', clientId).single();
+    const { data: project } = await supabase.from('projects').select('*').eq('client_id', clientId).single();
+    const { data: phases } = project
+      ? await supabase.from('project_phases').select('*').eq('project_id', project.id).order('date_maj')
+      : { data: [] };
+    const { data: files } = project
+      ? await supabase.from('files').select('*').eq('project_id', project.id).order('date_upload', { ascending: false })
+      : { data: [] };
+
+    content.innerHTML = `
+      <h1>${client.nom}</h1>
+      <p class="sub">${client.email} · ${client.nom_projet} · <span class="badge ${client.statut === 'actif' ? 'terminee' : 'a_venir'}">${client.statut}</span></p>
+
+      <div class="card">
+        <h2 style="font-size:15px;margin:0 0 14px">Phases</h2>
+        <div id="phases-list">
+          ${(phases || []).map((p) => `
+            <div class="list-item">
+              <div>${p.nom_phase}</div>
+              <select data-phase-id="${p.id}" data-phase-nom="${p.nom_phase}">
+                <option value="a_venir" ${p.statut === 'a_venir' ? 'selected' : ''}>à venir</option>
+                <option value="en_cours" ${p.statut === 'en_cours' ? 'selected' : ''}>en cours</option>
+                <option value="terminee" ${p.statut === 'terminee' ? 'selected' : ''}>terminée</option>
+              </select>
+            </div>
+          `).join('') || '<p class="sub" style="margin:0">Aucune phase.</p>'}
+        </div>
+        <form id="add-phase-form" style="margin-top:16px;display:flex;gap:8px;align-items:flex-end">
+          <div style="flex:1"><label for="nom_phase">Nouvelle phase</label><input type="text" id="nom_phase" required style="margin:0"/></div>
+          <button type="submit" class="btn-secondary">Ajouter</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:15px;margin:0 0 14px">Fichiers</h2>
+        <div id="files-list">
+          ${(files || []).map((f) => `<div class="list-item"><div>${f.nom}</div><span class="meta">${f.type}</span></div>`).join('') || '<p class="sub" style="margin:0">Aucun fichier.</p>'}
+        </div>
+        <form id="upload-form" style="margin-top:16px">
+          <label for="file-input">Ajouter un fichier</label>
+          <input type="file" id="file-input" required style="margin-bottom:16px"/>
+          <button type="submit" class="btn-primary" id="upload-btn">Uploader et notifier le client</button>
+        </form>
+      </div>
+    `;
+
+    content.querySelectorAll('select[data-phase-id]').forEach((sel) => {
+      sel.addEventListener('change', async () => {
+        sel.disabled = true;
+        const phaseId = sel.dataset.phaseId;
+        const nomPhase = sel.dataset.phaseNom;
+        const statut = sel.value;
+        await supabase.from('project_phases').update({ statut, date_maj: new Date().toISOString() }).eq('id', phaseId);
+        if (statut === 'en_cours') {
+          await supabase.from('projects').update({ phase_actuelle: nomPhase }).eq('id', project.id);
+        }
+        try {
+          await callFunction('notify-update', { client_id: clientId, type: 'phase_update', nom_phase: nomPhase, statut });
+        } catch {}
+        sel.disabled = false;
+      });
+    });
+
+    document.getElementById('add-phase-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nomPhase = document.getElementById('nom_phase').value.trim();
+      await supabase.from('project_phases').insert({ project_id: project.id, nom_phase: nomPhase, statut: 'a_venir' });
+      await render();
+    });
+
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('upload-btn');
+      btn.disabled = true;
+      const fileInput = document.getElementById('file-input');
+      const file = fileInput.files[0];
+      const path = `${project.id}/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabase.storage.from('client-files').upload(path, file);
+      if (uploadError) {
+        alert(uploadError.message);
+        btn.disabled = false;
+        return;
+      }
+      await supabase.from('files').insert({ project_id: project.id, type: 'fichier', nom: file.name, storage_path: path });
+      try {
+        await callFunction('notify-update', { client_id: clientId, type: 'new_file', nom_fichier: file.name });
+      } catch {}
+      btn.disabled = false;
+      await render();
+    });
+  }
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/admin/';
+});
+</script>
+</body>
+</html>

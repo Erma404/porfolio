@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tableau de bord — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <strong>Espace client</strong>
+    <div class="links">
+      <a href="/espace-client/" class="active">Tableau de bord</a>
+      <a href="/espace-client/projet/">Projet</a>
+      <a href="/espace-client/fichiers/">Fichiers</a>
+      <a href="#" id="logout">Déconnexion</a>
+    </div>
+  </nav>
+
+  <div id="content">
+    <p class="sub">Chargement…</p>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireSession } from '/assets/supabase-client.js';
+
+const session = await requireSession('/espace-client/connexion/');
+if (session) {
+  const content = document.getElementById('content');
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id, nom, nom_projet')
+    .eq('auth_user_id', session.user.id)
+    .single();
+
+  if (!client) {
+    content.innerHTML = '<div class="msg error">Aucun profil client associé à ce compte.</div>';
+  } else {
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id, nom, phase_actuelle, date_debut')
+      .eq('client_id', client.id)
+      .single();
+
+    const { data: lastPhase } = project
+      ? await supabase
+          .from('project_phases')
+          .select('nom_phase, statut, date_maj')
+          .eq('project_id', project.id)
+          .order('date_maj', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : { data: null };
+
+    content.innerHTML = `
+      <h1>Bonjour ${client.nom}</h1>
+      <p class="sub">Projet : ${project?.nom || client.nom_projet}</p>
+      <div class="card">
+        <label>Phase actuelle</label>
+        <p style="margin:0 0 20px;font-size:16px">${project?.phase_actuelle || 'À définir'}</p>
+        ${lastPhase ? `
+          <label>Dernière activité</label>
+          <p style="margin:0">
+            <span class="badge ${lastPhase.statut}">${lastPhase.statut.replace('_', ' ')}</span>
+            ${lastPhase.nom_phase} — ${new Date(lastPhase.date_maj).toLocaleDateString('fr-FR')}
+          </p>
+        ` : ''}
+      </div>
+      <p class="sub"><a href="/espace-client/projet/">Voir la timeline complète →</a></p>
+    `;
+  }
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/espace-client/connexion/';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Fichiers — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <strong>Espace client</strong>
+    <div class="links">
+      <a href="/espace-client/">Tableau de bord</a>
+      <a href="/espace-client/projet/">Projet</a>
+      <a href="/espace-client/fichiers/" class="active">Fichiers</a>
+      <a href="#" id="logout">Déconnexion</a>
+    </div>
+  </nav>
+
+  <h1>Maquettes &amp; fichiers</h1>
+  <div id="content" class="card">
+    <p class="sub">Chargement…</p>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireSession } from '/assets/supabase-client.js';
+
+const session = await requireSession('/espace-client/connexion/');
+if (session) {
+  const content = document.getElementById('content');
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('auth_user_id', session.user.id)
+    .single();
+
+  const { data: project } = client
+    ? await supabase.from('projects').select('id').eq('client_id', client.id).single()
+    : { data: null };
+
+  const { data: files } = project
+    ? await supabase
+        .from('files')
+        .select('id, nom, type, storage_path, date_upload')
+        .eq('project_id', project.id)
+        .order('date_upload', { ascending: false })
+    : { data: [] };
+
+  if (!files || files.length === 0) {
+    content.innerHTML = '<p class="sub" style="margin:0">Aucun fichier pour l\'instant.</p>';
+  } else {
+    content.innerHTML = files.map((f) => `
+      <div class="list-item">
+        <div>
+          <div>${f.nom}</div>
+          <div class="meta">${f.type} · ${new Date(f.date_upload).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <button class="btn-secondary" data-path="${f.storage_path}">Télécharger</button>
+      </div>
+    `).join('');
+
+    content.querySelectorAll('button[data-path]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const { data, error } = await supabase.storage
+          .from('client-files')
+          .createSignedUrl(btn.dataset.path, 60);
+        btn.disabled = false;
+        if (error || !data) {
+          alert('Impossible de générer le lien de téléchargement.');
+          return;
+        }
+        window.open(data.signedUrl, '_blank');
+      });
+    });
+  }
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/espace-client/connexion/';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Connexion — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap">
+  <h1>Espace client</h1>
+  <p class="sub">Connectez-vous pour suivre votre projet.</p>
+
+  <div id="msg-box"></div>
+
+  <!-- Étape 1 : email + mot de passe -->
+  <form id="login-form" class="card">
+    <label for="email">Email</label>
+    <input type="email" id="email" required autocomplete="email"/>
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" required autocomplete="current-password"/>
+    <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
+  </form>
+
+  <!-- Étape 2 : code de confirmation (première connexion uniquement) -->
+  <form id="code-form" class="card hidden">
+    <p class="sub" style="margin-bottom:16px">Un code à 6 chiffres vous a été envoyé par email. Saisissez-le ci-dessous.</p>
+    <label for="code">Code de confirmation</label>
+    <input type="text" id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required/>
+    <button type="submit" class="btn-primary" id="code-btn">Valider le code</button>
+  </form>
+
+  <!-- Étape 3 : nouveau mot de passe -->
+  <form id="newpass-form" class="card hidden">
+    <p class="sub" style="margin-bottom:16px">Choisissez votre mot de passe définitif.</p>
+    <label for="newpass">Nouveau mot de passe</label>
+    <input type="password" id="newpass" required minlength="8" autocomplete="new-password"/>
+    <button type="submit" class="btn-primary" id="newpass-btn">Définir mon mot de passe</button>
+  </form>
+
+  <!-- Bootstrap admin : lien d'invitation Supabase, usage unique -->
+  <form id="admin-invite-form" class="card hidden">
+    <p class="sub" style="margin-bottom:16px">Compte admin confirmé — définissez votre mot de passe.</p>
+    <label for="admin-pass">Mot de passe</label>
+    <input type="password" id="admin-pass" required minlength="8" autocomplete="new-password"/>
+    <button type="submit" class="btn-primary" id="admin-pass-btn">Définir mon mot de passe admin</button>
+  </form>
+</div>
+
+<script type="module">
+import { supabase, callFunction } from '/assets/supabase-client.js';
+
+const msgBox = document.getElementById('msg-box');
+function showMsg(text, type = 'error') {
+  msgBox.innerHTML = `<div class="msg ${type}">${text}</div>`;
+}
+function clearMsg() { msgBox.innerHTML = ''; }
+
+const loginForm = document.getElementById('login-form');
+const codeForm = document.getElementById('code-form');
+const newpassForm = document.getElementById('newpass-form');
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearMsg();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  if (error) {
+    showMsg('Email ou mot de passe incorrect.');
+    return;
+  }
+
+  if (data.session.user.user_metadata?.must_change_password) {
+    loginForm.classList.add('hidden');
+    codeForm.classList.remove('hidden');
+  } else {
+    window.location.href = '/espace-client/';
+  }
+});
+
+codeForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearMsg();
+  const btn = document.getElementById('code-btn');
+  btn.disabled = true;
+  const code = document.getElementById('code').value.trim();
+
+  try {
+    await callFunction('verify-onboarding-code', { code });
+    codeForm.classList.add('hidden');
+    newpassForm.classList.remove('hidden');
+  } catch (err) {
+    showMsg(err.message || 'Code invalide.');
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+newpassForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearMsg();
+  const btn = document.getElementById('newpass-btn');
+  btn.disabled = true;
+  const newPassword = document.getElementById('newpass').value;
+
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+    data: { must_change_password: false },
+  });
+  btn.disabled = false;
+  if (error) {
+    showMsg(error.message);
+    return;
+  }
+  window.location.href = '/espace-client/';
+});
+
+const ADMIN_EMAIL = 'ernestinemtb@gmail.com';
+
+if (location.hash.includes('type=invite') || location.hash.includes('type=recovery')) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && session.user.email === ADMIN_EMAIL) {
+    loginForm.classList.add('hidden');
+    document.getElementById('admin-invite-form').classList.remove('hidden');
+  }
+} else {
+  // Si déjà connectée et onboardée, redirection directe.
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user?.email === ADMIN_EMAIL) {
+    window.location.href = '/admin/';
+  } else if (session && !session.user.user_metadata?.must_change_password) {
+    window.location.href = '/espace-client/';
+  }
+}
+
+document.getElementById('admin-invite-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('admin-pass-btn');
+  btn.disabled = true;
+  const { error } = await supabase.auth.updateUser({ password: document.getElementById('admin-pass').value });
+  btn.disabled = false;
+  if (error) {
+    showMsg(error.message);
+    return;
+  }
+  window.location.href = '/admin/';
+});
+</script>
+</body>
+</html>

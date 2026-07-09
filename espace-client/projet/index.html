@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Projet — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <strong>Espace client</strong>
+    <div class="links">
+      <a href="/espace-client/">Tableau de bord</a>
+      <a href="/espace-client/projet/" class="active">Projet</a>
+      <a href="/espace-client/fichiers/">Fichiers</a>
+      <a href="#" id="logout">Déconnexion</a>
+    </div>
+  </nav>
+
+  <h1>Timeline du projet</h1>
+  <div id="content" class="card">
+    <p class="sub">Chargement…</p>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireSession } from '/assets/supabase-client.js';
+
+const session = await requireSession('/espace-client/connexion/');
+if (session) {
+  const content = document.getElementById('content');
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('auth_user_id', session.user.id)
+    .single();
+
+  const { data: project } = client
+    ? await supabase.from('projects').select('id').eq('client_id', client.id).single()
+    : { data: null };
+
+  const { data: phases } = project
+    ? await supabase
+        .from('project_phases')
+        .select('nom_phase, statut, date_maj')
+        .eq('project_id', project.id)
+        .order('date_maj', { ascending: true })
+    : { data: [] };
+
+  if (!phases || phases.length === 0) {
+    content.innerHTML = '<p class="sub" style="margin:0">Aucune phase enregistrée pour l\'instant.</p>';
+  } else {
+    content.innerHTML = phases.map((p) => `
+      <div class="list-item">
+        <div>
+          <div>${p.nom_phase}</div>
+          <div class="meta">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span>
+      </div>
+    `).join('');
+  }
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/espace-client/connexion/';
+});
+</script>
+</body>
+</html>
