@@ -344,9 +344,18 @@ body{
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
 .cursor{display:inline-block;width:2px;height:.9em;background:var(--text3);margin-left:1px;vertical-align:middle;animation:blink .7s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-/* Thinking phrase */
-.thinking-phrase{display:flex;align-items:center;gap:0;font-size:13px;color:var(--text2);font-style:italic;min-height:20px}
-.thinking-dots{display:inline-block;width:18px;text-align:left}
+/* Skeleton loader */
+.skeleton-wrap{display:flex;flex-direction:column;gap:9px;padding:2px 0;min-width:160px}
+.skeleton-line{
+  height:11px;border-radius:6px;
+  background:linear-gradient(90deg,var(--chip-bg) 25%,var(--border2) 37%,var(--chip-bg) 63%);
+  background-size:400% 100%;
+  animation:skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-line:nth-child(1){width:76%}
+.skeleton-line:nth-child(2){width:52%}
+.skeleton-line:nth-child(3){width:64%}
+@keyframes skeleton-shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
 
 /* ── BACKGROUND BLOBS ── */
 .bg-blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
@@ -708,7 +717,6 @@ function addMsg(role, html, animate=true) {
   return bub;
 }
 
-let _thinkInterval = null;
 function showTyping() {
   const wrap = document.getElementById('messages');
   const row = document.createElement('div');
@@ -716,34 +724,15 @@ function showTyping() {
   const bub = document.createElement('div');
   bub.className = 'bubble';
 
-  const phrases = [
-    'Je réfléchis',
-    "J'analyse votre question",
-    'Je prépare ma réponse',
-    'Je cherche les bons mots',
-  ];
-  let pi = 0, dots = 0;
-  const txtEl = document.createElement('span');
-  const dotsEl = document.createElement('span');
-  dotsEl.className = 'thinking-dots';
-  txtEl.textContent = phrases[0];
-  dotsEl.textContent = '.';
-  const ph = document.createElement('div');
-  ph.className = 'thinking-phrase';
-  ph.appendChild(txtEl); ph.appendChild(dotsEl);
-  bub.appendChild(ph);
-
-  _thinkInterval = setInterval(() => {
-    dots = (dots + 1) % 4;
-    dotsEl.textContent = '.'.repeat(dots || 1);
-    if (dots === 0) { pi = (pi + 1) % phrases.length; txtEl.textContent = phrases[pi]; }
-  }, 380);
+  const skel = document.createElement('div');
+  skel.className = 'skeleton-wrap';
+  skel.innerHTML = '<div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div>';
+  bub.appendChild(skel);
 
   row.appendChild(avAI()); row.appendChild(bub);
   wrap.appendChild(row); scrollBottom();
 }
 function hideTyping() {
-  if (_thinkInterval) { clearInterval(_thinkInterval); _thinkInterval = null; }
   document.getElementById('typing-row')?.remove();
 }
 
