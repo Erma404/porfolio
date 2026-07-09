@@ -18,7 +18,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="description" content="Senior Product Manager / Product Owner · 8+ ans en produit digital & fintech · Sodexo, Hello Bank!, Orange Money."/>
+<meta name="description" content="Senior Product Manager / Product Owner · 9+ ans en produit digital & fintech · Sodexo, Hello Bank!, Orange Money."/>
 <!-- Open Graph -->
 <meta property="og:title" content="Ernestine Matjabo — Senior PM / Product Owner"/>
 <meta property="og:description" content="Je transforme des besoins complexes en expériences impactantes. Spécialisée en banque digitale mobile, conversion & rétention."/>
@@ -551,7 +551,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="welcome">
         <div class="welcome-hero">
           <h1>Posez-moi n'importe quelle<br/>question sur <em>mon parcours</em></h1>
-          <p class="welcome-sub">Senior Product Manager / Product Owner · 8+ ans en produit digital &amp; fintech · Je transforme des besoins complexes en expériences impactantes.</p>
+          <p class="welcome-sub">Senior Product Manager / Product Owner · 9+ ans en produit digital &amp; fintech · Je transforme des besoins complexes en expériences impactantes.</p>
         </div>
         <div class="input-area" id="input-area">
           <div class="input-wrap">
@@ -836,7 +836,14 @@ async function send() {
   if (elapsed < 500) await sleep(500 - elapsed);
   hideTyping();
 
-  const safeReply = replyText
+  const plainReply = replyText
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-*]\s+/gm, '');
+
+  const safeReply = plainReply
     .split(/\n{2,}/)
     .map(p => `<p>${p.trim().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`)
     .join('');
