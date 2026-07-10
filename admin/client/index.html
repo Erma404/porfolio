@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=2"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=3"/>
 </head>
 <body>
 <div class="app-shell">
@@ -327,12 +327,36 @@ if (session) {
       const box = document.getElementById(`detail-${phaseId}`);
       box.innerHTML = '<p class="sub" style="margin:0">Chargement…</p>';
 
-      const [{ data: notes }, { data: phaseFiles }] = await Promise.all([
+      const [{ data: notes }, { data: phaseFiles }, { data: tasks }] = await Promise.all([
         supabase.from('project_phase_notes').select('id, contenu, created_at').eq('phase_id', phaseId).order('created_at', { ascending: false }),
         supabase.from('files').select('id, nom, type, storage_path, date_upload, size_bytes').eq('phase_id', phaseId).order('date_upload', { ascending: false }),
+        supabase.from('project_tasks').select('id, titre, responsable, delai, fait').eq('phase_id', phaseId).order('created_at', { ascending: true }),
       ]);
 
+      const today = new Date().toISOString().slice(0, 10);
+
       box.innerHTML = `
+        <div class="phase-detail-section">
+          <div class="phase-detail-label">Tâches</div>
+          <div class="task-list" id="tasks-${phaseId}">
+            ${(tasks || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucune tâche pour l\'instant.</p>' : (tasks || []).map((t) => `
+              <div class="task-item">
+                <input type="checkbox" class="task-check" data-task-id="${t.id}" ${t.fait ? 'checked' : ''}/>
+                <div class="task-info">
+                  <div class="task-title ${t.fait ? 'done' : ''}">${t.titre}</div>
+                  <div class="task-meta ${!t.fait && t.delai && t.delai < today ? 'overdue' : ''}">${[t.responsable, t.delai ? `échéance ${new Date(t.delai).toLocaleDateString('fr-FR')}` : null].filter(Boolean).join(' · ')}</div>
+                </div>
+                <button class="file-download file-delete" data-task-id="${t.id}" title="Supprimer">${ICON_TRASH}</button>
+              </div>
+            `).join('')}
+          </div>
+          <form class="task-form" data-phase-id="${phaseId}" style="margin-top:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px"><label>Titre</label><input type="text" class="task-titre" required style="margin:0"/></div>
+            <div style="width:140px"><label>Responsable</label><input type="text" class="task-responsable" style="margin:0"/></div>
+            <div style="width:150px"><label>Délai</label><input type="date" class="task-delai" style="margin:0"/></div>
+            <button type="submit" class="btn-secondary">Ajouter</button>
+          </form>
+        </div>
         <div class="phase-detail-section">
           <div class="phase-detail-label">Comptes-rendus</div>
           <div id="notes-${phaseId}">
@@ -375,7 +399,7 @@ if (session) {
       box.querySelectorAll('.file-download[data-path]:not(.file-delete)').forEach((btn) => {
         btn.addEventListener('click', () => downloadPath(btn.dataset.path, btn));
       });
-      box.querySelectorAll('.file-delete').forEach((btn) => {
+      box.querySelectorAll('.file-delete[data-path]').forEach((btn) => {
         btn.addEventListener('click', async () => {
           if (!confirm('Supprimer ce fichier ?')) return;
           btn.disabled = true;
@@ -383,6 +407,32 @@ if (session) {
           await supabase.from('files').delete().eq('id', btn.dataset.fileId);
           renderPhaseDetail(phaseId);
         });
+      });
+      box.querySelectorAll('.task-check').forEach((cb) => {
+        cb.addEventListener('change', async () => {
+          cb.disabled = true;
+          await supabase.from('project_tasks').update({ fait: cb.checked }).eq('id', cb.dataset.taskId);
+          renderPhaseDetail(phaseId);
+        });
+      });
+      box.querySelectorAll('.task-item .file-delete[data-task-id]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Supprimer cette tâche ?')) return;
+          await supabase.from('project_tasks').delete().eq('id', btn.dataset.taskId);
+          renderPhaseDetail(phaseId);
+        });
+      });
+      box.querySelector('.task-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const titre = form.querySelector('.task-titre').value.trim();
+        const responsable = form.querySelector('.task-responsable').value.trim();
+        const delai = form.querySelector('.task-delai').value;
+        if (!titre) return;
+        await supabase.from('project_tasks').insert({
+          phase_id: phaseId, titre, responsable: responsable || null, delai: delai || null,
+        });
+        renderPhaseDetail(phaseId);
       });
       box.querySelector('.note-form').addEventListener('submit', async (e) => {
         e.preventDefault();

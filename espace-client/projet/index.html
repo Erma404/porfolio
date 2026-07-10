@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=2"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=3"/>
 </head>
 <body>
 <div class="app-shell">
@@ -69,6 +69,7 @@ const ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
 const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 const ICON_CHEVRON = '<svg class="timeline-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
 const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 function fileIcon(nom) {
@@ -149,12 +150,29 @@ if (session) {
     const box = document.getElementById(`detail-${phaseId}`);
     box.innerHTML = '<p class="sub" style="margin:0">Chargement…</p>';
 
-    const [{ data: notes }, { data: files }] = await Promise.all([
+    const [{ data: notes }, { data: files }, { data: tasks }] = await Promise.all([
       supabase.from('project_phase_notes').select('contenu, created_at').eq('phase_id', phaseId).order('created_at', { ascending: false }),
       supabase.from('files').select('id, nom, type, storage_path, date_upload, size_bytes, uploaded_by').eq('phase_id', phaseId).order('date_upload', { ascending: false }),
+      supabase.from('project_tasks').select('titre, responsable, delai, fait').eq('phase_id', phaseId).order('created_at', { ascending: true }),
     ]);
 
+    const today = new Date().toISOString().slice(0, 10);
+
     box.innerHTML = `
+      <div class="phase-detail-section">
+        <div class="phase-detail-label">Tâches</div>
+        <div class="task-list">
+          ${(tasks || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucune tâche pour l\'instant.</p>' : (tasks || []).map((t) => `
+            <div class="task-item">
+              <div class="task-check-static ${t.fait ? 'done' : ''}">${t.fait ? ICON_CHECK : ''}</div>
+              <div class="task-info">
+                <div class="task-title ${t.fait ? 'done' : ''}">${t.titre}</div>
+                <div class="task-meta ${!t.fait && t.delai && t.delai < today ? 'overdue' : ''}">${[t.responsable, t.delai ? `échéance ${new Date(t.delai).toLocaleDateString('fr-FR')}` : null].filter(Boolean).join(' · ')}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
       <div class="phase-detail-section">
         <div class="phase-detail-label">Comptes-rendus</div>
         ${(notes || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucune note pour l\'instant.</p>' : (notes || []).map((n) => `
