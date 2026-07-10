@@ -113,20 +113,24 @@ if (session) {
 
     content.innerHTML = `
       <p class="sub" style="margin-bottom:16px"><a href="/admin/">← Clients</a></p>
-      <div class="page-header" style="display:flex;align-items:center;gap:14px">
-        <div class="avatar" style="width:44px;height:44px;font-size:15px;background:var(--accent)">${initials(client.nom)}</div>
-        <div>
-          <h1 style="margin:0">${client.nom}</h1>
-          <p class="sub" style="margin:2px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            ${client.email} · ${client.nom_projet} ·
-            <select class="badge ${client.statut}" id="client-statut">
-              <option value="onboarding" ${client.statut === 'onboarding' ? 'selected' : ''}>onboarding</option>
-              <option value="actif" ${client.statut === 'actif' ? 'selected' : ''}>actif</option>
-              <option value="archive" ${client.statut === 'archive' ? 'selected' : ''}>archivé</option>
-            </select>
-          </p>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="avatar" style="width:44px;height:44px;font-size:15px;background:var(--accent)">${initials(client.nom)}</div>
+          <div>
+            <h1 style="margin:0">${client.nom}</h1>
+            <p class="sub" style="margin:2px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              ${client.email} · ${client.nom_projet} ·
+              <select class="badge ${client.statut}" id="client-statut">
+                <option value="onboarding" ${client.statut === 'onboarding' ? 'selected' : ''}>onboarding</option>
+                <option value="actif" ${client.statut === 'actif' ? 'selected' : ''}>actif</option>
+                <option value="archive" ${client.statut === 'archive' ? 'selected' : ''}>archivé</option>
+              </select>
+            </p>
+          </div>
         </div>
+        ${client.statut === 'onboarding' ? '<button class="btn-secondary" id="resend-access-btn" style="width:auto">Renvoyer les accès</button>' : ''}
       </div>
+      <div id="resend-access-msg"></div>
 
       <div class="section-card">
         <div class="section-head"><h2>Phases</h2></div>
@@ -242,6 +246,21 @@ if (session) {
       sel.classList.remove('onboarding', 'actif', 'archive');
       sel.classList.add(sel.value);
       sel.disabled = false;
+    });
+
+    document.getElementById('resend-access-btn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('resend-access-btn');
+      const msgBox = document.getElementById('resend-access-msg');
+      btn.disabled = true;
+      msgBox.innerHTML = '';
+      try {
+        await callFunction('resend-access', { client_id: clientId });
+        msgBox.innerHTML = '<div class="msg success">Nouveaux accès envoyés par email.</div>';
+      } catch (err) {
+        msgBox.innerHTML = `<div class="msg error">${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+      }
     });
 
     // ── Phases : statut + détail (notes + fichiers de phase) ──────────────
