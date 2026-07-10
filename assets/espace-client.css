@@ -323,3 +323,14 @@ tr.clickable:hover{background:var(--chip-bg)}
 .project-card-progress-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text3);margin-bottom:2px}
 .project-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
 .project-card-foot .meta{font-size:11.5px;color:var(--text3)}
+
+/* ── Toast (remplace window.alert, non bloquant) ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--text);color:#fff;padding:11px 18px;border-radius:10px;font-size:13.5px;
+  box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  z-index:200;max-width:min(90vw,420px);text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.error{background:var(--danger)}
+.toast.success{background:var(--success)}

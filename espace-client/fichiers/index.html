@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=4"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=5"/>
 </head>
 <body>
 <div class="app-shell">
@@ -97,6 +97,20 @@ function wireDeleteConfirm(btn, onConfirm) {
     onConfirm();
   });
 }
+
+// Remplace window.alert (bloquant) par un message non bloquant en bas d'écran.
+function showToast(message, type = 'error') {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 4000);
+}
 function formatBytes(bytes) {
   if (!bytes) return '';
   const kb = bytes / 1024;
@@ -171,7 +185,7 @@ if (session) {
         btn.disabled = true;
         const { data, error } = await supabase.storage.from('client-files').createSignedUrl(btn.dataset.path, 60);
         btn.disabled = false;
-        if (error || !data) { alert('Impossible de générer le lien de téléchargement.'); return; }
+        if (error || !data) { showToast('Impossible de générer le lien de téléchargement.'); return; }
         window.open(data.signedUrl, '_blank');
       });
     });
@@ -194,7 +208,7 @@ if (session) {
 
       const { error: uploadError } = await supabase.storage.from('client-files').upload(path, file);
       if (uploadError) {
-        alert(uploadError.message);
+        showToast(uploadError.message);
         btn.disabled = false;
         return;
       }
