@@ -110,7 +110,7 @@ if (session) {
         .from('project_phases')
         .select('id, nom_phase, statut, date_maj')
         .eq('project_id', project.id)
-        .order('date_maj', { ascending: true })
+        .order('ordre', { ascending: true })
     : { data: [] };
 
   const allPhases = phases || [];
@@ -129,7 +129,7 @@ if (session) {
             <div class="timeline-rail"><div class="timeline-dot"></div>${i < allPhases.length - 1 ? '<div class="timeline-line"></div>' : ''}</div>
             <div class="timeline-body">
               <div class="timeline-title-row" data-toggle="${p.id}">
-                <span class="timeline-title">${p.nom_phase}</span>
+                <span class="timeline-title"><span class="timeline-num">${i + 1}.</span>${p.nom_phase}</span>
                 <div style="display:flex;align-items:center;gap:10px">
                   <span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span>
                   ${ICON_CHEVRON}

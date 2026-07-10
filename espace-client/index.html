@@ -101,7 +101,7 @@ if (session) {
       .single();
 
     const { data: phases } = project
-      ? await supabase.from('project_phases').select('nom_phase, statut, date_maj').eq('project_id', project.id).order('date_maj', { ascending: true })
+      ? await supabase.from('project_phases').select('nom_phase, statut, date_maj').eq('project_id', project.id).order('ordre', { ascending: true })
       : { data: [] };
 
     const { count: filesCount } = project
@@ -159,7 +159,7 @@ if (session) {
             <div class="timeline-item ${p.statut}">
               <div class="timeline-rail"><div class="timeline-dot"></div>${i < Math.min(allPhases.length, 4) - 1 ? '<div class="timeline-line"></div>' : ''}</div>
               <div class="timeline-body">
-                <div class="timeline-title-row"><span class="timeline-title">${p.nom_phase}</span><span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span></div>
+                <div class="timeline-title-row"><span class="timeline-title"><span class="timeline-num">${i + 1}.</span>${p.nom_phase}</span><span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span></div>
                 <div class="timeline-meta">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</div>
               </div>
             </div>
