@@ -276,6 +276,8 @@ tr.clickable:hover{background:var(--chip-bg)}
 .file-download svg{width:15px;height:15px}
 .file-delete{color:var(--danger)}
 .file-delete:hover:not(:disabled){background:rgba(229,72,77,0.12)}
+.file-delete.confirm-armed{background:var(--danger);color:#fff}
+.file-delete.confirm-armed:hover:not(:disabled){background:var(--danger);opacity:.9}
 .file-actions{display:flex;gap:6px;flex-shrink:0}
 
 /* ── Timeline item (clickable, expandable phase detail) ── */
