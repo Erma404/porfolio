@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Devis &amp; factures — Espace client</title>
+<meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/espace-client.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <div class="overlay" id="overlay"></div>
+  <aside class="app-sidebar" id="sidebar">
+    <div class="app-brand">
+      <div class="avatar" id="brand-avatar">··</div>
+      <div class="app-brand-text">
+        <div class="app-brand-name" id="brand-name">Chargement…</div>
+        <div class="app-brand-sub" id="brand-sub"></div>
+      </div>
+    </div>
+    <nav class="app-nav">
+      <a href="/espace-client/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      <a href="/espace-client/projet/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="m3 6 1.5 1.5L7 5"/><path d="m3 12 1.5 1.5L7 11"/><path d="m3 18 1.5 1.5L7 17"/></svg>
+        Projet
+      </a>
+      <a href="/espace-client/fichiers/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>
+        Fichiers
+      </a>
+      <a href="/espace-client/devis-factures/" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        Devis &amp; factures
+      </a>
+    </nav>
+    <div class="app-sidebar-bottom">
+      <a href="#" class="nav-item" id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <button class="menu-btn" id="menu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+      </button>
+      <strong style="font-size:14px">Devis &amp; factures</strong>
+    </div>
+    <div class="app-content">
+      <div class="app-content-inner" id="content">
+        <p class="sub">Chargement…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireSession } from '/assets/supabase-client.js';
+
+const ICON_EMPTY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
+function initials(nom) {
+  return nom.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+}
+function money(n) {
+  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+async function downloadDoc(path, btn) {
+  btn.disabled = true;
+  const { data, error } = await supabase.storage.from('client-files').createSignedUrl(path, 60);
+  btn.disabled = false;
+  if (error || !data) {
+    alert('Impossible de générer le lien de téléchargement.');
+    return;
+  }
+  window.open(data.signedUrl, '_blank');
+}
+
+function renderDocList(docs, emptyLabel) {
+  if (!docs || docs.length === 0) {
+    return `<div class="empty-state">${ICON_EMPTY}<p>${emptyLabel}</p></div>`;
+  }
+  return docs.map((d) => `
+    <div class="doc-item">
+      <div class="file-icon">${ICON_EMPTY}</div>
+      <div class="file-info">
+        <div class="doc-amount">${money(d.montant)}</div>
+        <div class="doc-meta">${new Date(d.created_at).toLocaleDateString('fr-FR')}</div>
+      </div>
+      <span class="badge ${d.statut}">${d.statut.replace('_', ' ')}</span>
+      <button class="file-download" data-path="${d.storage_path}" title="Télécharger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+const session = await requireSession('/espace-client/connexion/');
+if (session) {
+  const content = document.getElementById('content');
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id, nom, nom_projet')
+    .eq('auth_user_id', session.user.id)
+    .single();
+
+  if (client) {
+    document.getElementById('brand-avatar').textContent = initials(client.nom);
+    document.getElementById('brand-name').textContent = client.nom;
+    document.getElementById('brand-sub').textContent = client.nom_projet;
+  }
+
+  const { data: project } = client
+    ? await supabase.from('projects').select('id').eq('client_id', client.id).single()
+    : { data: null };
+
+  const { data: quotes } = project
+    ? await supabase.from('quotes').select('id, montant, statut, storage_path, created_at').eq('project_id', project.id).order('created_at', { ascending: false })
+    : { data: [] };
+
+  const { data: invoices } = project
+    ? await supabase.from('invoices').select('id, montant, statut, storage_path, created_at').eq('project_id', project.id).order('created_at', { ascending: false })
+    : { data: [] };
+
+  content.innerHTML = `
+    <div class="page-header">
+      <h1>Devis &amp; factures</h1>
+      <p class="sub">${client?.nom_projet || ''}</p>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h2>Devis</h2></div>
+      ${renderDocList(quotes, 'Aucun devis pour l\'instant.')}
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h2>Factures</h2></div>
+      ${renderDocList(invoices, 'Aucune facture pour l\'instant.')}
+    </div>
+  `;
+
+  content.querySelectorAll('.file-download[data-path]').forEach((btn) => {
+    btn.addEventListener('click', () => downloadDoc(btn.dataset.path, btn));
+  });
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/espace-client/connexion/';
+});
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('on');
+});
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+});
+</script>
+</body>
+</html>

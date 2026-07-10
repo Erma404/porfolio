@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Admin — Espace client</title>
 <meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/espace-client.css"/>
 </head>
 <body>
-<div class="wrap wide">
-  <div id="login-view" class="wrap" style="margin:0 auto">
-    <h1>Admin</h1>
+<div id="login-view" class="standalone">
+  <div class="wrap">
+    <h1 style="font-family:var(--serif);font-weight:400;font-size:28px">Admin</h1>
     <p class="sub">Connexion réservée.</p>
     <div id="login-msg"></div>
     <form id="login-form" class="card">
@@ -28,32 +31,71 @@
       <button type="submit" class="btn-primary" id="setpass-btn">Définir mon mot de passe</button>
     </form>
   </div>
+</div>
 
-  <div id="admin-view" class="hidden">
-    <nav class="topbar">
-      <strong>Admin — Espace client</strong>
-      <div class="links">
-        <a href="#" id="logout">Déconnexion</a>
+<div class="app-shell hidden" id="admin-view">
+  <div class="overlay" id="overlay"></div>
+  <aside class="app-sidebar" id="sidebar">
+    <div class="app-brand">
+      <div class="avatar" style="background:var(--text)">EM</div>
+      <div class="app-brand-text">
+        <div class="app-brand-name">Ernestine Matjabo</div>
+        <div class="app-brand-sub">Admin — Espace client</div>
       </div>
-    </nav>
-
-    <div class="card">
-      <h1 style="font-size:16px;margin-bottom:16px">Nouveau client</h1>
-      <div id="create-msg"></div>
-      <form id="create-form">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" required/>
-        <label for="c-email">Email</label>
-        <input type="email" id="c-email" required/>
-        <label for="nom_projet">Nom du projet</label>
-        <input type="text" id="nom_projet" required/>
-        <button type="submit" class="btn-primary" id="create-btn">Créer le client et envoyer les accès</button>
-      </form>
     </div>
+    <nav class="app-nav">
+      <a href="/admin/" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Clients
+      </a>
+    </nav>
+    <div class="app-sidebar-bottom">
+      <a href="#" class="nav-item" id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
 
-    <h1 style="font-size:16px">Clients</h1>
-    <div id="clients-list" class="card">
-      <p class="sub">Chargement…</p>
+  <div class="app-main">
+    <div class="app-topbar">
+      <button class="menu-btn" id="menu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+      </button>
+      <strong style="font-size:14px">Clients</strong>
+    </div>
+    <div class="app-content">
+      <div class="app-content-inner" style="max-width:1080px">
+        <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <h1>Clients</h1>
+            <p class="sub" id="clients-count">Chargement…</p>
+          </div>
+          <button class="btn-primary" style="width:auto" id="new-client-btn">+ Nouveau client</button>
+        </div>
+
+        <div class="section-card hidden" id="create-card">
+          <div class="section-head">
+            <h2>Nouveau client</h2>
+            <a href="#" id="create-cancel">Annuler</a>
+          </div>
+          <div id="create-msg"></div>
+          <form id="create-form">
+            <label for="nom">Nom</label>
+            <input type="text" id="nom" required/>
+            <label for="c-email">Email</label>
+            <input type="email" id="c-email" required/>
+            <label for="nom_projet">Nom du projet</label>
+            <input type="text" id="nom_projet" required/>
+            <button type="submit" class="btn-primary" id="create-btn">Créer le client et envoyer les accès</button>
+          </form>
+        </div>
+
+        <div class="filter-tabs" id="filter-tabs"></div>
+        <div class="project-grid" id="clients-list">
+          <p class="sub">Chargement…</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -65,41 +107,98 @@ const ADMIN_EMAIL = 'ernestinemtb@gmail.com';
 const loginView = document.getElementById('login-view');
 const adminView = document.getElementById('admin-view');
 
-async function renderClients() {
+const AVATAR_COLORS = ['#5b4cf5', '#2f8f5b', '#c2762c', '#c23c5e', '#2e83c2', '#7c6cfa'];
+function colorFor(seed) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function initials(nom) {
+  return nom.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+let allClients = [];
+let activeFilter = 'tous';
+
+function renderFilters() {
+  const counts = { tous: allClients.length };
+  allClients.forEach((c) => { counts[c.statut] = (counts[c.statut] || 0) + 1; });
+  const labels = { tous: 'Tous', onboarding: 'Onboarding', actif: 'Actif', archive: 'Archivé' };
+  const order = ['tous', 'onboarding', 'actif', 'archive'].filter((k) => counts[k]);
+  document.getElementById('filter-tabs').innerHTML = order.map((k) => `
+    <button class="filter-tab ${k === activeFilter ? 'active' : ''}" data-filter="${k}">${labels[k] || k} · ${counts[k]}</button>
+  `).join('');
+  document.querySelectorAll('.filter-tab').forEach((btn) => {
+    btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; renderFilters(); renderList(); });
+  });
+}
+
+function renderList() {
   const list = document.getElementById('clients-list');
+  const visible = activeFilter === 'tous' ? allClients : allClients.filter((c) => c.statut === activeFilter);
+  document.getElementById('clients-count').textContent = `${allClients.length} projet${allClients.length > 1 ? 's' : ''} en portefeuille`;
+
+  if (visible.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>Aucun client dans cette catégorie.</p></div>';
+    return;
+  }
+  list.innerHTML = visible.map((c) => `
+    <div class="project-card" data-id="${c.id}">
+      <div class="project-card-head">
+        <div class="avatar" style="background:${colorFor(c.nom)}">${initials(c.nom)}</div>
+        <div style="min-width:0">
+          <div class="project-card-name">${c.nom}</div>
+          <div class="project-card-sub">${c.nom_projet}</div>
+        </div>
+      </div>
+      ${c.phasesTotal ? `
+        <div class="project-card-progress-row"><span>${c.phaseActuelle || ''}</span><span>${c.phasesDone}/${c.phasesTotal}</span></div>
+        <div class="progress"><div class="progress-bar ${c.phasesDone === c.phasesTotal ? 'success' : ''}" style="width:${Math.round((c.phasesDone / c.phasesTotal) * 100)}%"></div></div>
+      ` : '<p class="sub" style="margin:8px 0 0;font-size:12.5px">Pas encore de phase.</p>'}
+      <div class="project-card-foot">
+        <span class="badge ${c.statut}">${c.statut}</span>
+        <span class="meta">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.project-card').forEach((card) => {
+    card.addEventListener('click', () => { window.location.href = `/admin/client/?id=${card.dataset.id}`; });
+  });
+}
+
+async function renderClients() {
   const { data: clients, error } = await supabase
     .from('clients')
     .select('id, nom, email, nom_projet, statut, created_at')
     .order('created_at', { ascending: false });
 
   if (error) {
-    list.innerHTML = `<div class="msg error">${error.message}</div>`;
+    document.getElementById('clients-list').innerHTML = `<div class="msg error">${error.message}</div>`;
     return;
   }
-  if (!clients || clients.length === 0) {
-    list.innerHTML = '<p class="sub" style="margin:0">Aucun client pour l\'instant.</p>';
-    return;
-  }
-  list.innerHTML = `
-    <table>
-      <thead><tr><th>Nom</th><th>Projet</th><th>Statut</th><th>Créé le</th></tr></thead>
-      <tbody>
-        ${clients.map((c) => `
-          <tr class="clickable" data-id="${c.id}">
-            <td>${c.nom}<br/><span class="meta" style="color:var(--text3)">${c.email}</span></td>
-            <td>${c.nom_projet}</td>
-            <td><span class="badge ${c.statut === 'actif' ? 'terminee' : c.statut === 'onboarding' ? 'a_venir' : ''}">${c.statut}</span></td>
-            <td>${new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-  list.querySelectorAll('tr[data-id]').forEach((row) => {
-    row.addEventListener('click', () => {
-      window.location.href = `/admin/client/?id=${row.dataset.id}`;
-    });
+
+  allClients = clients || [];
+
+  const clientIds = allClients.map((c) => c.id);
+  const { data: projects } = clientIds.length
+    ? await supabase.from('projects').select('id, client_id, phase_actuelle').in('client_id', clientIds)
+    : { data: [] };
+
+  const projectIds = (projects || []).map((p) => p.id);
+  const { data: phases } = projectIds.length
+    ? await supabase.from('project_phases').select('project_id, statut').in('project_id', projectIds)
+    : { data: [] };
+
+  allClients.forEach((c) => {
+    const project = (projects || []).find((p) => p.client_id === c.id);
+    const projectPhases = project ? (phases || []).filter((p) => p.project_id === project.id) : [];
+    c.phaseActuelle = project?.phase_actuelle;
+    c.phasesTotal = projectPhases.length;
+    c.phasesDone = projectPhases.filter((p) => p.statut === 'terminee').length;
   });
+
+  renderFilters();
+  renderList();
 }
 
 async function checkAdmin() {
@@ -113,8 +212,6 @@ async function checkAdmin() {
   }
 }
 
-// Lien d'invitation Supabase (bootstrap admin, usage unique) : la session est déjà active,
-// il ne reste qu'à définir un mot de passe réel.
 if (location.hash.includes('type=invite') || location.hash.includes('type=recovery')) {
   const { data: { session } } = await supabase.auth.getSession();
   if (session && session.user.email === ADMIN_EMAIL) {
@@ -159,6 +256,14 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   await checkAdmin();
 });
 
+document.getElementById('new-client-btn').addEventListener('click', () => {
+  document.getElementById('create-card').classList.toggle('hidden');
+});
+document.getElementById('create-cancel').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('create-card').classList.add('hidden');
+});
+
 document.getElementById('create-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const msgBox = document.getElementById('create-msg');
@@ -174,6 +279,7 @@ document.getElementById('create-form').addEventListener('submit', async (e) => {
     await callFunction('create-client', { nom, email, nom_projet });
     msgBox.innerHTML = '<div class="msg success">Client créé, accès envoyés par email.</div>';
     document.getElementById('create-form').reset();
+    document.getElementById('create-card').classList.add('hidden');
     renderClients();
   } catch (err) {
     msgBox.innerHTML = `<div class="msg error">${err.message}</div>`;
@@ -186,6 +292,14 @@ document.getElementById('logout').addEventListener('click', async (e) => {
   e.preventDefault();
   await supabase.auth.signOut();
   location.reload();
+});
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('on');
+});
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
 });
 </script>
 </body>

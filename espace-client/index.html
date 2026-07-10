@@ -5,27 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Tableau de bord — Espace client</title>
 <meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/espace-client.css"/>
 </head>
 <body>
-<div class="wrap">
-  <nav class="topbar">
-    <strong>Espace client</strong>
-    <div class="links">
-      <a href="/espace-client/" class="active">Tableau de bord</a>
-      <a href="/espace-client/projet/">Projet</a>
-      <a href="/espace-client/fichiers/">Fichiers</a>
-      <a href="#" id="logout">Déconnexion</a>
+<div class="app-shell">
+  <div class="overlay" id="overlay"></div>
+  <aside class="app-sidebar" id="sidebar">
+    <div class="app-brand">
+      <div class="avatar" id="brand-avatar">··</div>
+      <div class="app-brand-text">
+        <div class="app-brand-name" id="brand-name">Chargement…</div>
+        <div class="app-brand-sub" id="brand-sub"></div>
+      </div>
     </div>
-  </nav>
+    <nav class="app-nav">
+      <a href="/espace-client/" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Tableau de bord
+      </a>
+      <a href="/espace-client/projet/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="m3 6 1.5 1.5L7 5"/><path d="m3 12 1.5 1.5L7 11"/><path d="m3 18 1.5 1.5L7 17"/></svg>
+        Projet
+      </a>
+      <a href="/espace-client/fichiers/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>
+        Fichiers
+      </a>
+      <a href="/espace-client/devis-factures/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        Devis &amp; factures
+      </a>
+    </nav>
+    <div class="app-sidebar-bottom">
+      <a href="#" class="nav-item" id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
 
-  <div id="content">
-    <p class="sub">Chargement…</p>
+  <div class="app-main">
+    <div class="app-topbar">
+      <button class="menu-btn" id="menu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+      </button>
+      <strong style="font-size:14px">Tableau de bord</strong>
+    </div>
+    <div class="app-content">
+      <div class="app-content-inner" id="content">
+        <p class="sub">Chargement…</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <script type="module">
 import { supabase, requireSession } from '/assets/supabase-client.js';
+
+const ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 20"/></svg>';
+const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
+const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+function fileIcon(nom) {
+  const ext = (nom.split('.').pop() || '').toLowerCase();
+  return IMAGE_EXT.includes(ext) ? ICON_IMAGE : ICON_DOC;
+}
+function initials(nom) {
+  return nom.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+}
 
 const session = await requireSession('/espace-client/connexion/');
 if (session) {
@@ -40,38 +90,115 @@ if (session) {
   if (!client) {
     content.innerHTML = '<div class="msg error">Aucun profil client associé à ce compte.</div>';
   } else {
+    document.getElementById('brand-avatar').textContent = initials(client.nom);
+    document.getElementById('brand-name').textContent = client.nom;
+    document.getElementById('brand-sub').textContent = client.nom_projet;
+
     const { data: project } = await supabase
       .from('projects')
       .select('id, nom, phase_actuelle, date_debut')
       .eq('client_id', client.id)
       .single();
 
-    const { data: lastPhase } = project
-      ? await supabase
-          .from('project_phases')
-          .select('nom_phase, statut, date_maj')
-          .eq('project_id', project.id)
-          .order('date_maj', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-      : { data: null };
+    const { data: phases } = project
+      ? await supabase.from('project_phases').select('nom_phase, statut, date_maj').eq('project_id', project.id).order('date_maj', { ascending: true })
+      : { data: [] };
+
+    const { count: filesCount } = project
+      ? await supabase.from('files').select('id', { count: 'exact', head: true }).eq('project_id', project.id)
+      : { count: 0 };
+
+    const { data: recentFiles } = project
+      ? await supabase.from('files').select('id, nom, type, storage_path, date_upload').eq('project_id', project.id).order('date_upload', { ascending: false }).limit(2)
+      : { data: [] };
+
+    const allPhases = phases || [];
+    const doneCount = allPhases.filter((p) => p.statut === 'terminee').length;
+    const currentPhase = allPhases.find((p) => p.statut === 'en_cours') || allPhases[allPhases.length - 1];
+    const lastActivity = allPhases.length
+      ? [...allPhases].sort((a, b) => new Date(b.date_maj) - new Date(a.date_maj))[0]
+      : null;
+    const pct = allPhases.length ? Math.round((doneCount / allPhases.length) * 100) : 0;
 
     content.innerHTML = `
-      <h1>Bonjour ${client.nom}</h1>
-      <p class="sub">Projet : ${project?.nom || client.nom_projet}</p>
-      <div class="card">
-        <label>Phase actuelle</label>
-        <p style="margin:0 0 20px;font-size:16px">${project?.phase_actuelle || 'À définir'}</p>
-        ${lastPhase ? `
-          <label>Dernière activité</label>
-          <p style="margin:0">
-            <span class="badge ${lastPhase.statut}">${lastPhase.statut.replace('_', ' ')}</span>
-            ${lastPhase.nom_phase} — ${new Date(lastPhase.date_maj).toLocaleDateString('fr-FR')}
-          </p>
-        ` : ''}
+      <div class="page-header">
+        <h1>Bonjour <em style="font-style:italic;color:var(--accent)">${client.nom}</em></h1>
+        <p class="sub">Projet : ${project?.nom || client.nom_projet}</p>
       </div>
-      <p class="sub"><a href="/espace-client/projet/">Voir la timeline complète →</a></p>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Phase actuelle</div>
+          <div class="stat-value" style="font-size:16px">${project?.phase_actuelle || currentPhase?.nom_phase || 'À définir'}</div>
+          ${currentPhase ? `<div class="stat-foot"><span class="badge ${currentPhase.statut}">${currentPhase.statut.replace('_', ' ')}</span></div>` : ''}
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Progression</div>
+          <div class="stat-value">${doneCount}<small>/${allPhases.length || 0} phases</small></div>
+          <div class="progress"><div class="progress-bar ${pct === 100 ? 'success' : ''}" style="width:${pct}%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Fichiers partagés</div>
+          <div class="stat-value">${filesCount || 0}</div>
+          ${recentFiles && recentFiles[0] ? `<div class="stat-foot">dernier ajout le ${new Date(recentFiles[0].date_upload).toLocaleDateString('fr-FR')}</div>` : ''}
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Dernière activité</div>
+          <div class="stat-value" style="font-size:16px">${lastActivity?.nom_phase || '—'}</div>
+          ${lastActivity ? `<div class="stat-foot">${new Date(lastActivity.date_maj).toLocaleDateString('fr-FR')}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head">
+          <h2>Timeline du projet</h2>
+          <a href="/espace-client/projet/">Voir tout →</a>
+        </div>
+        <div class="timeline">
+          ${allPhases.length === 0 ? '<div class="empty-state"><p>Aucune phase enregistrée pour l\'instant.</p></div>' : allPhases.slice(0, 4).map((p, i) => `
+            <div class="timeline-item ${p.statut}">
+              <div class="timeline-rail"><div class="timeline-dot"></div>${i < Math.min(allPhases.length, 4) - 1 ? '<div class="timeline-line"></div>' : ''}</div>
+              <div class="timeline-body">
+                <div class="timeline-title-row"><span class="timeline-title">${p.nom_phase}</span><span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span></div>
+                <div class="timeline-meta">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head">
+          <h2>Fichiers récents</h2>
+          <a href="/espace-client/fichiers/">Voir tout →</a>
+        </div>
+        <div class="file-list" id="recent-files">
+          ${!recentFiles || recentFiles.length === 0 ? '<div class="empty-state"><p>Aucun fichier pour l\'instant.</p></div>' : recentFiles.map((f) => `
+            <div class="file-item">
+              <div class="file-icon">${fileIcon(f.nom)}</div>
+              <div class="file-info">
+                <div class="file-name">${f.nom}</div>
+                <div class="file-meta">${f.type} · ${new Date(f.date_upload).toLocaleDateString('fr-FR')}</div>
+              </div>
+              <button class="file-download" data-path="${f.storage_path}">${ICON_DOWNLOAD}</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
     `;
+
+    content.querySelectorAll('.file-download[data-path]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const { data, error } = await supabase.storage.from('client-files').createSignedUrl(btn.dataset.path, 60);
+        btn.disabled = false;
+        if (error || !data) {
+          alert('Impossible de générer le lien de téléchargement.');
+          return;
+        }
+        window.open(data.signedUrl, '_blank');
+      });
+    });
   }
 }
 
@@ -79,6 +206,14 @@ document.getElementById('logout').addEventListener('click', async (e) => {
   e.preventDefault();
   await supabase.auth.signOut();
   window.location.href = '/espace-client/connexion/';
+});
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('on');
+});
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
 });
 </script>
 </body>
