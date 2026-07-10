@@ -58,8 +58,7 @@ const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
 const ICON_CHEVRON = '<svg class="timeline-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
-const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>';
-const ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+const ICON_GRIP = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
 const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 function fileIcon(nom) {
   const ext = (nom.split('.').pop() || '').toLowerCase();
@@ -133,12 +132,9 @@ if (session) {
         <div class="section-head"><h2>Phases</h2></div>
         <div id="phases-list">
           ${(phases || []).map((p, i) => `
-            <div class="timeline-item ${p.statut}" style="padding-bottom:0;border-bottom:1px solid var(--border)">
+            <div class="timeline-item ${p.statut}" data-phase-id="${p.id}" style="padding-bottom:0;border-bottom:1px solid var(--border)">
               <div class="timeline-body" style="padding:14px 0;display:flex;align-items:flex-start;gap:8px">
-                <div class="move-group">
-                  <button class="move-btn" data-move="up" data-phase-id="${p.id}" ${i === 0 ? 'disabled' : ''} title="Monter">${ICON_UP}</button>
-                  <button class="move-btn" data-move="down" data-phase-id="${p.id}" ${i === phases.length - 1 ? 'disabled' : ''} title="Descendre">${ICON_DOWN}</button>
-                </div>
+                <div class="drag-handle" draggable="true" data-phase-id="${p.id}" title="Glisser pour réordonner">${ICON_GRIP}</div>
                 <div style="flex:1;min-width:0">
                   <div class="timeline-title-row" data-toggle="${p.id}" style="cursor:pointer">
                     <span class="timeline-title"><span class="timeline-num">${i + 1}.</span>${p.nom_phase}</span>
@@ -269,20 +265,41 @@ if (session) {
       });
     });
 
-    content.querySelectorAll('.move-btn').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const phaseId = btn.dataset.phaseId;
-        const index = phases.findIndex((p) => p.id === phaseId);
-        const swapWith = btn.dataset.move === 'up' ? index - 1 : index + 1;
-        if (swapWith < 0 || swapWith >= phases.length) return;
-        const a = phases[index];
-        const b = phases[swapWith];
-        content.querySelectorAll('.move-btn').forEach((b2) => { b2.disabled = true; });
-        await Promise.all([
-          supabase.from('project_phases').update({ ordre: b.ordre }).eq('id', a.id),
-          supabase.from('project_phases').update({ ordre: a.ordre }).eq('id', b.id),
-        ]);
+    let draggedPhaseId = null;
+
+    content.querySelectorAll('.drag-handle').forEach((handle) => {
+      handle.addEventListener('dragstart', (e) => {
+        draggedPhaseId = handle.dataset.phaseId;
+        e.dataTransfer.effectAllowed = 'move';
+        handle.closest('.timeline-item').classList.add('dragging');
+      });
+      handle.addEventListener('dragend', () => {
+        handle.closest('.timeline-item').classList.remove('dragging');
+        content.querySelectorAll('.timeline-item').forEach((it) => it.classList.remove('drag-over'));
+      });
+    });
+
+    content.querySelectorAll('.timeline-item[data-phase-id]').forEach((item) => {
+      item.addEventListener('dragover', (e) => {
+        if (!draggedPhaseId) return;
+        e.preventDefault();
+        item.classList.add('drag-over');
+      });
+      item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+      item.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        const targetId = item.dataset.phaseId;
+        if (!draggedPhaseId || draggedPhaseId === targetId) return;
+
+        const ids = phases.map((p) => p.id);
+        const fromIdx = ids.indexOf(draggedPhaseId);
+        const toIdx = ids.indexOf(targetId);
+        ids.splice(fromIdx, 1);
+        ids.splice(toIdx, 0, draggedPhaseId);
+        draggedPhaseId = null;
+
+        await Promise.all(ids.map((id, idx) => supabase.from('project_phases').update({ ordre: idx + 1 }).eq('id', id)));
         await render();
       });
     });
