@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=5"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=6"/>
 </head>
 <body>
 <div class="app-shell">
@@ -62,6 +62,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="phase-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="phase-modal-close" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <div class="modal-header" id="phase-modal-header"></div>
+    <div class="modal-body" id="phase-modal-body"></div>
+  </div>
+</div>
+
 <script type="module">
 import { supabase, requireSession } from '/assets/supabase-client.js';
 
@@ -70,7 +80,6 @@ const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
 const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-const ICON_CHEVRON = '<svg class="timeline-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
 const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 function fileIcon(nom) {
   const ext = (nom.split('.').pop() || '').toLowerCase();
@@ -149,39 +158,118 @@ if (session) {
     : { data: [] };
 
   const allPhases = phases || [];
+  const phaseIds = allPhases.map((p) => p.id);
   const doneCount = allPhases.filter((p) => p.statut === 'terminee').length;
+
+  const [{ data: allTasks }, { data: allFiles }, { data: allNotes }] = phaseIds.length
+    ? await Promise.all([
+        supabase.from('project_tasks').select('phase_id, fait').in('phase_id', phaseIds),
+        supabase.from('files').select('phase_id').in('phase_id', phaseIds),
+        supabase.from('project_phase_notes').select('phase_id').in('phase_id', phaseIds),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+
+  function countBy(rows) {
+    const map = {};
+    (rows || []).forEach((r) => { map[r.phase_id] = (map[r.phase_id] || 0) + 1; });
+    return map;
+  }
+  function taskStats(rows) {
+    const map = {};
+    (rows || []).forEach((r) => {
+      map[r.phase_id] = map[r.phase_id] || { total: 0, done: 0 };
+      map[r.phase_id].total++;
+      if (r.fait) map[r.phase_id].done++;
+    });
+    return map;
+  }
+  const fileCounts = countBy(allFiles);
+  const noteCounts = countBy(allNotes);
+  const taskCounts = taskStats(allTasks);
+
+  const ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  const ICON_FILE_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/></svg>';
+
+  const COLUMNS = [
+    { statut: 'a_venir', label: 'À venir' },
+    { statut: 'en_cours', label: 'En cours' },
+    { statut: 'terminee', label: 'Terminé' },
+  ];
+
+  function renderCard(p) {
+    const stats = taskCounts[p.id];
+    const pct = stats && stats.total ? Math.round((stats.done / stats.total) * 100) : null;
+    return `
+      <div class="kanban-card" data-phase-id="${p.id}">
+        <div class="kanban-card-title">${p.nom_phase}</div>
+        ${pct !== null ? `
+        <div class="kanban-progress-row">
+          <div class="progress"><div class="progress-bar ${pct === 100 ? 'success' : ''}" style="width:${pct}%"></div></div>
+          <span class="kanban-progress-label">${stats.done}/${stats.total}</span>
+        </div>` : ''}
+        <div class="kanban-card-foot">
+          <span class="kanban-card-date">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</span>
+          <div class="kanban-card-icons">
+            ${fileCounts[p.id] ? `<span class="kanban-icon-chip">${ICON_FILE_SMALL}${fileCounts[p.id]}</span>` : ''}
+            ${noteCounts[p.id] ? `<span class="kanban-icon-chip">${ICON_NOTE}${noteCounts[p.id]}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   content.innerHTML = `
     <div class="page-header">
       <h1>Timeline du projet</h1>
       <p class="sub">${project?.nom || client?.nom_projet || ''} — ${doneCount} phase${doneCount > 1 ? 's' : ''} terminée${doneCount > 1 ? 's' : ''} sur ${allPhases.length}</p>
     </div>
-    <div class="section-card">
-      ${allPhases.length === 0 ? `<div class="empty-state">${ICON_DOC}<p>Aucune phase enregistrée pour l'instant.</p></div>` : `
-      <div class="timeline">
-        ${allPhases.map((p, i) => `
-          <div class="timeline-item clickable ${p.statut}" data-phase-id="${p.id}">
-            <div class="timeline-rail"><div class="timeline-dot"></div>${i < allPhases.length - 1 ? '<div class="timeline-line"></div>' : ''}</div>
-            <div class="timeline-body">
-              <div class="timeline-title-row" data-toggle="${p.id}">
-                <span class="timeline-title"><span class="timeline-num">${i + 1}.</span>${p.nom_phase}</span>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span>
-                  ${ICON_CHEVRON}
-                </div>
-              </div>
-              <div class="timeline-meta">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</div>
-              <div class="phase-detail hidden" id="detail-${p.id}"></div>
-            </div>
+    ${allPhases.length === 0 ? `<div class="section-card"><div class="empty-state">${ICON_DOC}<p>Aucune phase enregistrée pour l'instant.</p></div></div>` : `
+    <div class="kanban-board">
+      ${COLUMNS.map((col) => {
+        const colPhases = allPhases.filter((p) => p.statut === col.statut);
+        return `
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="kanban-column-dot ${col.statut}"></span>
+            <span class="kanban-column-title">${col.label}</span>
+            <span class="kanban-column-count">${colPhases.length}</span>
           </div>
-        `).join('')}
-      </div>
-      `}
+          <div class="kanban-cards">
+            ${colPhases.length === 0 ? '<p class="kanban-empty-col">Aucune phase.</p>' : colPhases.map(renderCard).join('')}
+          </div>
+        </div>
+        `;
+      }).join('')}
     </div>
+    `}
   `;
 
+  const modalOverlay = document.getElementById('phase-modal-overlay');
+  const modalHeader = document.getElementById('phase-modal-header');
+  const modalBody = document.getElementById('phase-modal-body');
+
+  function closeModal() { modalOverlay.classList.remove('open'); }
+  document.getElementById('phase-modal-close').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+  content.querySelectorAll('.kanban-card[data-phase-id]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const phaseId = card.dataset.phaseId;
+      const p = allPhases.find((ph) => ph.id === phaseId);
+      modalHeader.innerHTML = `
+        <h2>${p.nom_phase}</h2>
+        <div class="meta-row">
+          <span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span>
+          <span class="timeline-meta" style="margin:0">${new Date(p.date_maj).toLocaleDateString('fr-FR')}</span>
+        </div>
+      `;
+      modalOverlay.classList.add('open');
+      renderPhaseDetail(phaseId);
+    });
+  });
+
   async function renderPhaseDetail(phaseId) {
-    const box = document.getElementById(`detail-${phaseId}`);
+    const box = modalBody;
     box.innerHTML = '<p class="sub" style="margin:0">Chargement…</p>';
 
     const [{ data: notes }, { data: files }, { data: tasks }] = await Promise.all([
@@ -274,18 +362,6 @@ if (session) {
       renderPhaseDetail(phaseId);
     });
   }
-
-  content.querySelectorAll('.timeline-title-row[data-toggle]').forEach((row) => {
-    row.addEventListener('click', () => {
-      const phaseId = row.dataset.toggle;
-      const item = row.closest('.timeline-item');
-      const box = document.getElementById(`detail-${phaseId}`);
-      const wasHidden = box.classList.contains('hidden');
-      box.classList.toggle('hidden');
-      item.classList.toggle('expanded', wasHidden);
-      if (wasHidden) renderPhaseDetail(phaseId);
-    });
-  });
 }
 
 document.getElementById('logout').addEventListener('click', async (e) => {
