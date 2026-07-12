@@ -9,34 +9,97 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/espace-client.css?v=10"/>
+<style>
+  #login-view.login-split{min-height:100vh;display:flex}
+  .login-split-form{
+    flex:1 1 480px;display:flex;align-items:center;justify-content:center;
+    padding:40px 20px;background:var(--surface);position:relative;z-index:1;
+  }
+  .login-split-form .wrap{padding:0}
+  .login-split-visual{
+    flex:1 1 480px;position:relative;overflow:hidden;background:var(--bg);
+    display:flex;align-items:flex-end;justify-content:center;padding:32px;
+  }
+  .login-split-brand{
+    position:relative;z-index:1;text-align:center;padding:16px 26px;border-radius:14px;
+    background:rgba(255,255,255,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.6);
+  }
+  .login-split-brand-avatar{display:block;width:64px;height:auto;margin:0 auto 10px}
+  .login-split-brand-name{display:block;font-family:var(--serif);font-size:19px;color:var(--text)}
+  .login-split-brand-sub{display:block;font-size:12.5px;color:var(--text2);margin-top:2px}
+
+  @media(max-width:860px){
+    .login-split-visual{display:none}
+  }
+
+  /* ── Background blobs (identiques à ernestinematjabo.com) ── */
+  .bg-blobs{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .blob{position:absolute;border-radius:50%}
+  .blob-1{
+    width:620px;height:620px;background:radial-gradient(circle,rgba(91,76,245,0.88) 0%,transparent 62%);
+    top:-160px;left:-140px;filter:blur(22px);animation:blobDrift1 12s ease-in-out infinite alternate;
+  }
+  .blob-2{
+    width:520px;height:520px;background:radial-gradient(circle,rgba(219,39,119,0.72) 0%,transparent 62%);
+    bottom:-140px;right:-110px;filter:blur(26px);animation:blobDrift2 9s ease-in-out infinite alternate;
+  }
+  .blob-3{
+    width:420px;height:420px;background:radial-gradient(circle,rgba(124,108,250,0.80) 0%,transparent 62%);
+    top:38%;left:50%;filter:blur(30px);animation:blobDrift3 15s ease-in-out infinite alternate;
+  }
+  .blob-4{
+    width:340px;height:340px;background:radial-gradient(circle,rgba(236,72,153,0.60) 0%,transparent 62%);
+    top:10%;right:8%;filter:blur(28px);animation:blobDrift4 18s ease-in-out infinite alternate;
+  }
+  @keyframes blobDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(150px,110px) scale(1.28)}}
+  @keyframes blobDrift2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-130px,-140px) scale(1.22)}}
+  @keyframes blobDrift3{0%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}100%{transform:translate(-18%,-68%) scale(1.32) rotate(28deg)}}
+  @keyframes blobDrift4{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-60px,90px) scale(1.18)}}
+</style>
 </head>
 <body>
-<div id="login-view" class="standalone">
-  <div class="wrap">
-    <h1 style="font-family:var(--serif);font-weight:400;font-size:28px">Admin</h1>
-    <p class="sub">Connexion réservée.</p>
-    <div id="login-msg"></div>
-    <form id="login-form" class="card">
-      <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="email"/>
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" required autocomplete="current-password"/>
-      <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
-    </form>
+<div id="login-view" class="login-split">
+  <div class="login-split-form">
+    <div class="wrap">
+      <h1 style="font-family:var(--serif);font-weight:400;font-size:28px">Admin</h1>
+      <p class="sub">Connexion réservée.</p>
+      <div id="login-msg"></div>
+      <form id="login-form" class="card">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email"/>
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" required autocomplete="current-password"/>
+        <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
+      </form>
 
-    <form id="setpass-form" class="card hidden">
-      <p class="sub" style="margin-bottom:16px">Invitation confirmée — définissez votre mot de passe admin.</p>
-      <label for="setpass">Mot de passe</label>
-      <input type="password" id="setpass" required minlength="8" autocomplete="new-password"/>
-      <button type="submit" class="btn-primary" id="setpass-btn">Définir mon mot de passe</button>
-    </form>
+      <form id="setpass-form" class="card hidden">
+        <p class="sub" style="margin-bottom:16px">Invitation confirmée — définissez votre mot de passe admin.</p>
+        <label for="setpass">Mot de passe</label>
+        <input type="password" id="setpass" required minlength="8" autocomplete="new-password"/>
+        <button type="submit" class="btn-primary" id="setpass-btn">Définir mon mot de passe</button>
+      </form>
 
-    <form id="code-form" class="card hidden">
-      <p class="sub" style="margin-bottom:16px">Un code de vérification vous a été envoyé par email. Saisissez-le pour continuer.</p>
-      <label for="admin-code">Code de vérification</label>
-      <input type="text" id="admin-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"/>
-      <button type="submit" class="btn-primary" id="code-btn">Valider</button>
-    </form>
+      <form id="code-form" class="card hidden">
+        <p class="sub" style="margin-bottom:16px">Un code de vérification vous a été envoyé par email. Saisissez-le pour continuer.</p>
+        <label for="admin-code">Code de vérification</label>
+        <input type="text" id="admin-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"/>
+        <button type="submit" class="btn-primary" id="code-btn">Valider</button>
+      </form>
+    </div>
+  </div>
+  <div class="login-split-visual" aria-hidden="true">
+    <div class="bg-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+      <div class="blob blob-4"></div>
+    </div>
+    <div class="login-split-brand">
+      <img src="/assets/img/memoji-ernestine.png" alt="" class="login-split-brand-avatar"/>
+      <span class="login-split-brand-name">Ernestine Matjabo</span>
+      <span class="login-split-brand-sub">Espace client</span>
+    </div>
   </div>
 </div>
 
