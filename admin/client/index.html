@@ -162,7 +162,7 @@ if (session) {
             </p>
           </div>
         </div>
-        ${client.statut === 'onboarding' ? '<button class="btn-secondary" id="resend-access-btn" style="width:auto">Renvoyer les accès</button>' : ''}
+        ${client.statut !== 'archive' ? '<button class="btn-secondary" id="resend-access-btn" style="width:auto">Renvoyer les accès</button>' : ''}
       </div>
       <div id="resend-access-msg"></div>
 
