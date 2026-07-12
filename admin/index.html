@@ -30,6 +30,13 @@
       <input type="password" id="setpass" required minlength="8" autocomplete="new-password"/>
       <button type="submit" class="btn-primary" id="setpass-btn">Définir mon mot de passe</button>
     </form>
+
+    <form id="code-form" class="card hidden">
+      <p class="sub" style="margin-bottom:16px">Un code de vérification vous a été envoyé par email. Saisissez-le pour continuer.</p>
+      <label for="admin-code">Code de vérification</label>
+      <input type="text" id="admin-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"/>
+      <button type="submit" class="btn-primary" id="code-btn">Valider</button>
+    </form>
   </div>
 </div>
 
@@ -215,9 +222,30 @@ async function renderClients() {
   renderList();
 }
 
+function showCodeForm() {
+  loginView.classList.remove('hidden');
+  adminView.classList.add('hidden');
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('setpass-form').classList.add('hidden');
+  document.getElementById('code-form').classList.remove('hidden');
+}
+
 async function checkAdmin() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session && session.user.email === ADMIN_EMAIL) {
+    let needsCode = false;
+    try {
+      const res = await callFunction('check-admin-verification', {});
+      needsCode = res.needsCode;
+    } catch (err) {
+      showToast(err.message || 'Erreur de vérification.');
+      await supabase.auth.signOut();
+      return;
+    }
+    if (needsCode) {
+      showCodeForm();
+      return;
+    }
     loginView.classList.add('hidden');
     adminView.classList.remove('hidden');
     renderClients();
@@ -267,6 +295,23 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     msgBox.innerHTML = '<div class="msg error">Accès refusé.</div>';
     return;
   }
+  await checkAdmin();
+});
+
+document.getElementById('code-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('code-btn');
+  btn.disabled = true;
+  const code = document.getElementById('admin-code').value.trim();
+  try {
+    await callFunction('verify-admin-code', { code });
+  } catch (err) {
+    btn.disabled = false;
+    showToast(err.message || 'Code invalide.');
+    return;
+  }
+  btn.disabled = false;
+  document.getElementById('code-form').classList.add('hidden');
   await checkAdmin();
 });
 
