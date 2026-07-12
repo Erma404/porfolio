@@ -127,13 +127,22 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('password').value;
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  btn.disabled = false;
   if (error) {
+    btn.disabled = false;
     showMsg('Email ou mot de passe incorrect.');
     return;
   }
 
   if (data.session.user.user_metadata?.must_change_password) {
+    try {
+      await callFunction('check-temp-password', {});
+    } catch (err) {
+      btn.disabled = false;
+      await supabase.auth.signOut();
+      showMsg(err.message || 'Ce mot de passe temporaire a expiré, contactez Ernestine pour en recevoir un nouveau.');
+      return;
+    }
+    btn.disabled = false;
     loginForm.classList.add('hidden');
     newpassForm.classList.remove('hidden');
   } else {
