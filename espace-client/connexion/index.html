@@ -26,15 +26,7 @@
     <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
   </form>
 
-  <!-- Étape 2 : code de confirmation (première connexion uniquement) -->
-  <form id="code-form" class="card hidden">
-    <p class="sub" style="margin-bottom:16px">Un code à 6 chiffres vous a été envoyé par email. Saisissez-le ci-dessous.</p>
-    <label for="code">Code de confirmation</label>
-    <input type="text" id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required/>
-    <button type="submit" class="btn-primary" id="code-btn">Valider le code</button>
-  </form>
-
-  <!-- Étape 3 : nouveau mot de passe -->
+  <!-- Étape 2 : nouveau mot de passe (première connexion uniquement) -->
   <form id="newpass-form" class="card hidden">
     <p class="sub" style="margin-bottom:16px">Choisissez votre mot de passe définitif.</p>
     <label for="newpass">Nouveau mot de passe</label>
@@ -61,7 +53,6 @@ function showMsg(text, type = 'error') {
 function clearMsg() { msgBox.innerHTML = ''; }
 
 const loginForm = document.getElementById('login-form');
-const codeForm = document.getElementById('code-form');
 const newpassForm = document.getElementById('newpass-form');
 
 loginForm.addEventListener('submit', async (e) => {
@@ -81,27 +72,9 @@ loginForm.addEventListener('submit', async (e) => {
 
   if (data.session.user.user_metadata?.must_change_password) {
     loginForm.classList.add('hidden');
-    codeForm.classList.remove('hidden');
+    newpassForm.classList.remove('hidden');
   } else {
     window.location.href = '/espace-client/';
-  }
-});
-
-codeForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearMsg();
-  const btn = document.getElementById('code-btn');
-  btn.disabled = true;
-  const code = document.getElementById('code').value.trim();
-
-  try {
-    await callFunction('verify-onboarding-code', { code });
-    codeForm.classList.add('hidden');
-    newpassForm.classList.remove('hidden');
-  } catch (err) {
-    showMsg(err.message || 'Code invalide.');
-  } finally {
-    btn.disabled = false;
   }
 });
 
@@ -116,10 +89,17 @@ newpassForm.addEventListener('submit', async (e) => {
     password: newPassword,
     data: { must_change_password: false },
   });
-  btn.disabled = false;
   if (error) {
+    btn.disabled = false;
     showMsg(error.message);
     return;
+  }
+
+  try {
+    await callFunction('complete-onboarding', {});
+  } catch (err) {
+    // Le mot de passe est déjà défini ; on n'empêche pas l'accès si cet appel échoue.
+    console.error('complete-onboarding error', err);
   }
   window.location.href = '/espace-client/';
 });
