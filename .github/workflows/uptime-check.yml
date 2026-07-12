@@ -1,0 +1,38 @@
+name: Uptime check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check site availability
+        id: check
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 https://ernestinematjabo.com/)
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" != "200" ]; then
+            echo "Site returned HTTP $status"
+            exit 1
+          fi
+
+      - name: Send alert email
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          STATUS: ${{ steps.check.outputs.status }}
+        run: |
+          html="<p>ernestinematjabo.com n'a pas répondu correctement (code HTTP : ${STATUS:-aucune réponse}).</p><p>Vérifié automatiquement par GitHub Actions.</p>"
+          payload=$(jq -n --arg html "$html" '{
+            from: "Alerte site <espace-client@ernestinematjabo.com>",
+            to: "ernestinemtb@gmail.com",
+            subject: "⚠️ ernestinematjabo.com semble injoignable",
+            html: $html
+          }')
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
