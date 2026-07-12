@@ -152,7 +152,7 @@ if (session) {
   const { data: phases } = project
     ? await supabase
         .from('project_phases')
-        .select('id, nom_phase, statut, date_maj')
+        .select('id, nom_phase, statut, date_maj, tags')
         .eq('project_id', project.id)
         .order('ordre', { ascending: true })
     : { data: [] };
@@ -190,6 +190,26 @@ if (session) {
   const ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
   const ICON_FILE_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/></svg>';
 
+  const TAG_PALETTE = [
+    { bg: 'rgba(91,76,245,0.12)', color: '#5b4cf5' },
+    { bg: 'rgba(217,164,65,0.18)', color: '#9a6b0a' },
+    { bg: 'rgba(48,164,108,0.16)', color: '#1f8a57' },
+    { bg: 'rgba(229,72,77,0.13)', color: '#c53d41' },
+    { bg: 'rgba(37,99,235,0.14)', color: '#2563eb' },
+    { bg: 'rgba(217,70,239,0.13)', color: '#a21caf' },
+    { bg: 'rgba(20,184,166,0.16)', color: '#0f766e' },
+  ];
+  function tagStyle(tag) {
+    let h = 0;
+    for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+    return TAG_PALETTE[h % TAG_PALETTE.length];
+  }
+  function renderTags(tags) {
+    return (tags || []).length
+      ? `<div class="kanban-tags">${tags.map((t) => `<span class="kanban-tag" style="background:${tagStyle(t).bg};color:${tagStyle(t).color}">${t}</span>`).join('')}</div>`
+      : '';
+  }
+
   const COLUMNS = [
     { statut: 'a_venir', label: 'À venir' },
     { statut: 'en_cours', label: 'En cours' },
@@ -201,6 +221,7 @@ if (session) {
     const pct = stats && stats.total ? Math.round((stats.done / stats.total) * 100) : null;
     return `
       <div class="kanban-card" data-phase-id="${p.id}">
+        ${renderTags(p.tags)}
         <div class="kanban-card-title">${p.nom_phase}</div>
         ${pct !== null ? `
         <div class="kanban-progress-row">
@@ -257,6 +278,7 @@ if (session) {
       const phaseId = card.dataset.phaseId;
       const p = allPhases.find((ph) => ph.id === phaseId);
       modalHeader.innerHTML = `
+        ${renderTags(p.tags)}
         <h2>${p.nom_phase}</h2>
         <div class="meta-row">
           <span class="badge ${p.statut}">${p.statut.replace('_', ' ')}</span>
@@ -322,7 +344,7 @@ if (session) {
           `).join('')}
         </div>
         <form class="phase-upload-form" data-phase-id="${phaseId}" style="margin-top:14px">
-          <input type="file" required style="margin-bottom:10px"/>
+          <input type="file" style="margin-bottom:10px"/>
           <button type="submit" class="btn-secondary">Ajouter un fichier</button>
         </form>
       </div>
@@ -351,7 +373,7 @@ if (session) {
       const form = e.target;
       const fileInput = form.querySelector('input[type=file]');
       const file = fileInput.files[0];
-      if (!file) return;
+      if (!file) { showToast('Sélectionnez un fichier avant d\'ajouter.'); return; }
       const path = `${project.id}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage.from('client-files').upload(path, file);
       if (uploadError) { showToast(uploadError.message); return; }
