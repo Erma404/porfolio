@@ -67,6 +67,7 @@ const ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
 const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+const ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 const TAG_OPTIONS = [
   { name: 'Kick-off', bg: 'rgba(37,99,235,0.14)', color: '#2563eb' },
@@ -431,10 +432,11 @@ if (session) {
       const box = document.getElementById('phase-modal-body');
       box.innerHTML = '<p class="sub" style="margin:0">Chargement…</p>';
 
-      const [{ data: notes }, { data: phaseFiles }, { data: tasks }] = await Promise.all([
+      const [{ data: notes }, { data: phaseFiles }, { data: tasks }, { data: phaseLinks }] = await Promise.all([
         supabase.from('project_phase_notes').select('id, contenu, created_at').eq('phase_id', phaseId).order('created_at', { ascending: false }),
         supabase.from('files').select('id, nom, type, storage_path, date_upload, size_bytes').eq('phase_id', phaseId).order('date_upload', { ascending: false }),
         supabase.from('project_tasks').select('id, titre, responsable, delai, fait').eq('phase_id', phaseId).order('created_at', { ascending: true }),
+        supabase.from('phase_links').select('id, titre, url, created_at').eq('phase_id', phaseId).order('created_at', { ascending: false }),
       ]);
 
       const today = new Date().toISOString().slice(0, 10);
@@ -507,6 +509,29 @@ if (session) {
             <button type="submit" class="btn-secondary">Ajouter un fichier</button>
           </form>
         </div>
+        <div class="phase-detail-section">
+          <div class="phase-detail-label">Liens</div>
+          <div class="file-list">
+            ${(phaseLinks || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucun lien.</p>' : (phaseLinks || []).map((l) => `
+              <div class="file-item">
+                <div class="file-icon">${ICON_LINK}</div>
+                <div class="file-info">
+                  <div class="file-name">${l.titre}</div>
+                  <div class="file-meta">${new Date(l.created_at).toLocaleDateString('fr-FR')}</div>
+                </div>
+                <div class="file-actions">
+                  <a class="file-download" href="${l.url}" target="_blank" rel="noopener" title="Ouvrir">${ICON_LINK}</a>
+                  <button class="file-download file-delete" data-link-id="${l.id}" title="Supprimer">${ICON_TRASH}</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <form class="phase-link-form" data-phase-id="${phaseId}" style="margin-top:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px"><label>Titre</label><input type="text" class="link-titre" style="margin:0" placeholder="Preprod ENERG-FLUIDE"/></div>
+            <div style="flex:2;min-width:220px"><label>URL</label><input type="url" class="link-url" style="margin:0" placeholder="https://..."/></div>
+            <button type="submit" class="btn-secondary">Partager</button>
+          </form>
+        </div>
       `;
 
       box.querySelectorAll('.file-download[data-path]:not(.file-delete)').forEach((btn) => {
@@ -518,6 +543,22 @@ if (session) {
           await supabase.from('files').delete().eq('id', btn.dataset.fileId);
           renderPhaseDetail(phaseId);
         });
+      });
+      box.querySelectorAll('.file-delete[data-link-id]').forEach((btn) => {
+        wireDeleteConfirm(btn, async () => {
+          await supabase.from('phase_links').delete().eq('id', btn.dataset.linkId);
+          renderPhaseDetail(phaseId);
+        });
+      });
+      box.querySelector('.phase-link-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const titre = form.querySelector('.link-titre').value.trim();
+        const url = form.querySelector('.link-url').value.trim();
+        if (!titre || !url) { showToast('Indiquez un titre et une URL avant de partager.'); return; }
+        await supabase.from('phase_links').insert({ project_id: project.id, phase_id: phaseId, titre, url });
+        await callFunction('notify-update', { client_id: clientId, type: 'new_link', titre_lien: titre, nom_phase: currentPhase.nom_phase });
+        renderPhaseDetail(phaseId);
       });
       box.querySelectorAll('.task-check').forEach((cb) => {
         cb.addEventListener('change', async () => {
