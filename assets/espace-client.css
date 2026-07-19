@@ -41,7 +41,7 @@ h1{font-size:22px;margin:0 0 6px;letter-spacing:-.01em}
   padding:28px;margin-bottom:16px;box-shadow:var(--shadow);
 }
 label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
-input[type=email],input[type=password],input[type=text]{
+input[type=email],input[type=password],input[type=text],input[type=url],input[type=date]{
   width:100%;padding:11px 13px;border:1px solid var(--border2);border-radius:10px;
   font-family:var(--font);font-size:14.5px;background:var(--bg);color:var(--text);
   margin-bottom:16px;transition:border-color .15s;
