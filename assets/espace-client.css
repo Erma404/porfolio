@@ -306,9 +306,30 @@ tr.clickable:hover{background:var(--chip-bg)}
 .phase-detail-section{margin-bottom:16px}
 .phase-detail-section:last-child{margin-bottom:0}
 .phase-detail-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px}
-.note-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+.note-item{padding:12px 0;border-bottom:1px solid var(--border);font-size:13.5px}
 .note-item:last-child{border-bottom:none}
-.note-item .meta{font-size:11.5px;color:var(--text3);margin-top:3px}
+.note-item .meta{font-size:11.5px;color:var(--text3);margin-top:6px}
+.note-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.note-item-head .note-content{flex:1;min-width:0}
+.note-item-head .file-actions{flex-shrink:0}
+.note-content p{margin:0 0 10px;line-height:1.55}
+.note-content p:last-child{margin-bottom:0}
+.note-content h3,.note-content h4,.note-content h5{margin:2px 0 8px;font-weight:700;line-height:1.35}
+.note-content h3{font-size:15.5px}
+.note-content h4{font-size:14px}
+.note-content h5{font-size:13.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2)}
+.note-content ul{margin:0 0 10px;padding-left:20px}
+.note-content ul ul{margin:2px 0 0}
+.note-content li{margin-bottom:3px;line-height:1.5}
+.note-content strong{font-weight:700}
+.note-form{margin-top:14px}
+textarea{
+  box-sizing:border-box;width:100%;max-width:100%;padding:11px 13px;border:1px solid var(--border2);border-radius:10px;
+  font-family:var(--font);font-size:14.5px;background:var(--surface);color:var(--text);
+  margin-bottom:0;transition:border-color .15s,box-shadow .15s;resize:vertical;min-height:120px;line-height:1.5;
+}
+textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+textarea:focus-visible{outline:none}
 
 /* ── Kanban board (projet) ── */
 .kanban-board{
