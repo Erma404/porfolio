@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=29"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=30"/>
 </head>
 <body>
 <div class="app-shell">
@@ -315,7 +315,7 @@ if (session) {
 
     if (showLanding) {
       if (activeDocId) setActiveDoc(null);
-      document.body.classList.remove('workspace-hide-sidebar');
+      document.body.classList.remove('hide-sidebar');
 
       const docIds = (documents || []).map((d) => d.id);
       const [{ data: allDeliverables }, { data: allTasks }, { data: allMilestones }] = await Promise.all([
@@ -338,7 +338,7 @@ if (session) {
       });
 
       content.innerHTML = `
-        <div class="workspace-compact">
+        <div class="compact-view">
         <div class="page-header">
           <h1>Bonjour Ernestine</h1>
           <p class="sub">Plans de projet pilotés avec l'IA.</p>
@@ -480,10 +480,10 @@ if (session) {
     const milestoneTotal = (milestones || []).length;
     const milestonePct = milestoneTotal ? Math.round((milestoneDone / milestoneTotal) * 100) : 0;
     const hasDoc = !draftMode;
-    document.body.classList.add('workspace-hide-sidebar');
+    document.body.classList.add('hide-sidebar');
 
     content.innerHTML = `
-      <div class="workspace-compact">
+      <div class="compact-view">
       <p class="sub" style="margin-bottom:16px;display:flex;gap:14px;align-items:center">
         <span id="back-to-landing"><a href="#">← Tous les plans</a></span>
         <span style="margin-left:auto;display:flex;gap:14px">

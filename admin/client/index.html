@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=29"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=30"/>
 </head>
 <body>
 <div class="app-shell">
@@ -207,6 +207,8 @@ if (session) {
   const params = new URLSearchParams(location.search);
   const clientId = params.get('id');
   const content = document.getElementById('content');
+  document.body.classList.add('hide-sidebar');
+  let docsTab = 'fichiers';
 
   if (!clientId) {
     content.innerHTML = '<div class="msg error">Client introuvable.</div>';
@@ -241,7 +243,14 @@ if (session) {
       : { data: [] };
 
     content.innerHTML = `
-      <p class="sub" style="margin-bottom:16px"><a href="/admin/">← Clients</a></p>
+      <div class="compact-view">
+      <p class="sub" style="margin-bottom:16px;display:flex;gap:14px;align-items:center">
+        <a href="/admin/">← Clients</a>
+        <span style="margin-left:auto;display:flex;gap:14px">
+          <a href="/admin/workspace/">Workspace</a>
+          <a href="#" id="fiche-logout-inline">Déconnexion</a>
+        </span>
+      </p>
       <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:14px">
           <div class="avatar" style="width:44px;height:44px;font-size:15px;background:var(--accent)">${initials(client.nom)}</div>
@@ -302,7 +311,13 @@ if (session) {
       </div>
 
       <div class="section-card">
-        <div class="section-head"><h2>Fichiers du projet</h2></div>
+        <div class="filter-tabs" id="docs-tabs">
+          <button type="button" class="filter-tab ${docsTab === 'fichiers' ? 'active' : ''}" data-tab="fichiers">Fichiers</button>
+          <button type="button" class="filter-tab ${docsTab === 'devis' ? 'active' : ''}" data-tab="devis">Devis</button>
+          <button type="button" class="filter-tab ${docsTab === 'factures' ? 'active' : ''}" data-tab="factures">Factures</button>
+        </div>
+
+        ${docsTab === 'fichiers' ? `
         <div class="file-list" id="files-list">
           ${(files || []).map((f) => `
             <div class="file-item">
@@ -323,10 +338,9 @@ if (session) {
           <input type="file" id="file-input" required style="margin-bottom:16px"/>
           <button type="submit" class="btn-primary" id="upload-btn" style="width:auto">Uploader et notifier le client</button>
         </form>
-      </div>
+        ` : ''}
 
-      <div class="section-card">
-        <div class="section-head"><h2>Devis</h2></div>
+        ${docsTab === 'devis' ? `
         <div id="quotes-list">
           ${(quotes || []).map((q) => `
             <div class="doc-item">
@@ -349,10 +363,9 @@ if (session) {
           <div style="flex:1;min-width:180px"><label for="quote-file">Fichier PDF</label><input type="file" id="quote-file" accept="application/pdf" required style="margin:0"/></div>
           <button type="submit" class="btn-primary" style="width:auto">Envoyer le devis</button>
         </form>
-      </div>
+        ` : ''}
 
-      <div class="section-card">
-        <div class="section-head"><h2>Factures</h2></div>
+        ${docsTab === 'factures' ? `
         <div id="invoices-list">
           ${(invoices || []).map((inv) => `
             <div class="doc-item">
@@ -374,6 +387,8 @@ if (session) {
           <div style="flex:1;min-width:180px"><label for="invoice-file">Fichier PDF</label><input type="file" id="invoice-file" accept="application/pdf" required style="margin:0"/></div>
           <button type="submit" class="btn-primary" style="width:auto">Envoyer la facture</button>
         </form>
+        ` : ''}
+      </div>
       </div>
     `;
 
@@ -384,6 +399,19 @@ if (session) {
       sel.classList.remove('onboarding', 'actif', 'archive');
       sel.classList.add(sel.value);
       sel.disabled = false;
+    });
+
+    document.getElementById('fiche-logout-inline').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.href = '/admin/';
+    });
+
+    document.querySelectorAll('#docs-tabs .filter-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        docsTab = btn.dataset.tab;
+        render();
+      });
     });
 
     // ── Phases : kanban drag-and-drop (statut + réordonnancement) ──────────
@@ -747,7 +775,7 @@ if (session) {
       });
     });
 
-    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+    document.getElementById('upload-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('upload-btn');
       btn.disabled = true;
@@ -782,7 +810,7 @@ if (session) {
         sel.disabled = false;
       });
     });
-    document.getElementById('quote-form').addEventListener('submit', async (e) => {
+    document.getElementById('quote-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const montant = parseFloat(document.getElementById('quote-montant').value.replace(',', '.'));
       const file = document.getElementById('quote-file').files[0];
@@ -810,7 +838,7 @@ if (session) {
         sel.disabled = false;
       });
     });
-    document.getElementById('invoice-form').addEventListener('submit', async (e) => {
+    document.getElementById('invoice-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const montant = parseFloat(document.getElementById('invoice-montant').value.replace(',', '.'));
       const file = document.getElementById('invoice-file').files[0];

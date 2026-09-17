@@ -133,7 +133,7 @@ tr.clickable:hover{background:var(--chip-bg)}
    APP SHELL — sidebar + main (dashboard pages)
    ══════════════════════════════════════════ */
 .app-shell{display:flex;height:100dvh;overflow:hidden}
-body.workspace-hide-sidebar .app-sidebar{display:none}
+body.hide-sidebar .app-sidebar{display:none}
 
 .app-sidebar{
   width:248px;min-width:248px;background:var(--sidebar);
@@ -485,60 +485,75 @@ textarea:focus-visible{outline:none}
 .workspace-tip strong{color:var(--text)}
 
 /* Dashboard compact : tout doit tenir sur un écran sans scroller. */
-.workspace-compact .page-header h1{font-size:16px;margin-bottom:2px}
-.workspace-compact .page-header .sub{font-size:11px;margin-bottom:0}
-.workspace-compact .section-card{padding:12px 14px;margin-bottom:10px}
-.workspace-compact .section-head{margin-bottom:8px}
-.workspace-compact .section-head h2{font-size:12px}
-.workspace-compact .kanban-column{padding:8px}
-.workspace-compact .kanban-column-head{padding:2px 4px 8px}
-.workspace-compact .kanban-column-title{font-size:10.5px}
-.workspace-compact .kanban-column-count{font-size:9.5px;padding:0 6px}
-.workspace-compact .kanban-cards{gap:6px}
-.workspace-compact .kanban-card{padding:8px 10px}
-.workspace-compact .kanban-card-title{font-size:11.5px;margin-bottom:3px;gap:4px}
-.workspace-compact .kanban-card-title svg{width:11px;height:11px}
-.workspace-compact .kanban-card-meta{font-size:9.5px;margin-bottom:0}
-.workspace-compact .kanban-card-assignee{font-size:9.5px;margin-bottom:5px;gap:5px}
-.workspace-compact .kanban-progress-row{margin-bottom:6px;gap:6px}
-.workspace-compact .kanban-progress-label{font-size:9px}
-.workspace-compact .kanban-card-foot{margin-top:4px}
-.workspace-compact .kanban-empty-col{font-size:10.5px;padding:10px 6px}
-.workspace-compact .task-item{padding:5px 0;gap:8px}
-.workspace-compact .task-title{font-size:11.5px}
-.workspace-compact .task-meta{font-size:9.5px}
-.workspace-compact .task-check{width:13px;height:13px}
-.workspace-compact .workspace-tip{font-size:11px;padding:8px 12px;margin-bottom:10px}
-.workspace-compact .btn-primary{font-size:12px;padding:7px 14px}
-.workspace-compact .btn-secondary{font-size:11.5px;padding:6px 12px}
-.workspace-compact .add-item-trigger{font-size:11px;padding:6px 11px}
-.workspace-compact .add-item-form{margin-top:8px;gap:6px}
+.compact-view .page-header h1{font-size:16px;margin-bottom:2px}
+.compact-view .page-header .sub{font-size:11px;margin-bottom:0}
+.compact-view .section-card{padding:12px 14px;margin-bottom:10px}
+.compact-view .section-head{margin-bottom:8px}
+.compact-view .section-head h2{font-size:12px}
+.compact-view .kanban-column{padding:8px}
+.compact-view .kanban-column-head{padding:2px 4px 8px}
+.compact-view .kanban-column-title{font-size:10.5px}
+.compact-view .kanban-column-count{font-size:9.5px;padding:0 6px}
+.compact-view .kanban-cards{gap:6px}
+.compact-view .kanban-card{padding:8px 10px}
+.compact-view .kanban-card-title{font-size:11.5px;margin-bottom:3px;gap:4px}
+.compact-view .kanban-card-title svg{width:11px;height:11px}
+.compact-view .kanban-card-meta{font-size:9.5px;margin-bottom:0}
+.compact-view .kanban-card-assignee{font-size:9.5px;margin-bottom:5px;gap:5px}
+.compact-view .kanban-progress-row{margin-bottom:6px;gap:6px}
+.compact-view .kanban-progress-label{font-size:9px}
+.compact-view .kanban-card-foot{margin-top:4px}
+.compact-view .kanban-empty-col{font-size:10.5px;padding:10px 6px}
+.compact-view .task-item{padding:5px 0;gap:8px}
+.compact-view .task-title{font-size:11.5px}
+.compact-view .task-meta{font-size:9.5px}
+.compact-view .task-check{width:13px;height:13px}
+.compact-view .workspace-tip{font-size:11px;padding:8px 12px;margin-bottom:10px}
+.compact-view .btn-primary{font-size:12px;padding:7px 14px}
+.compact-view .btn-secondary{font-size:11.5px;padding:6px 12px}
+.compact-view .add-item-trigger{font-size:11px;padding:6px 11px}
+.compact-view .add-item-form{margin-top:8px;gap:6px}
+.compact-view .doc-item{padding:9px 0;gap:8px}
+.compact-view .doc-amount{font-size:12.5px}
+.compact-view .doc-meta{font-size:10px}
+.compact-view .file-item{padding:8px 0;gap:8px}
+.compact-view .file-icon{width:28px;height:28px}
+.compact-view .file-icon svg{width:13px;height:13px}
+.compact-view .file-name{font-size:12px}
+.compact-view .file-meta{font-size:10px}
+.compact-view .file-download{width:26px;height:26px}
+.compact-view .file-download svg{width:12px;height:12px}
+.compact-view .avatar{width:32px !important;height:32px !important;font-size:12px !important}
+.compact-view .page-header .badge{font-size:9.5px;padding:3px 8px}
+
+/* Fiche client : kanban de phases plafonné (scroll interne par colonne). */
+#phases-board .kanban-cards{max-height:280px;overflow-y:auto;padding-right:2px}
 
 /* Compact : vue détail (tabs, chat, panneau plan/priorités/jalons, notes, formulaires). */
-.workspace-compact .workspace-tabs{margin-bottom:10px}
-.workspace-compact .workspace-tab{padding:6px 10px;font-size:11.5px}
-.workspace-compact .workspace-layout{gap:12px}
-.workspace-compact label{font-size:10.5px;margin-bottom:3px}
-.workspace-compact input[type=text],
-.workspace-compact input[type=date]{padding:6px 8px;font-size:11.5px;margin-bottom:0}
-.workspace-compact .kanban-board{gap:10px}
+.compact-view .workspace-tabs{margin-bottom:10px}
+.compact-view .workspace-tab{padding:6px 10px;font-size:11.5px}
+.compact-view .workspace-layout{gap:12px}
+.compact-view label{font-size:10.5px;margin-bottom:3px}
+.compact-view input[type=text],
+.compact-view input[type=date]{padding:6px 8px;font-size:11.5px;margin-bottom:0}
+.compact-view .kanban-board{gap:10px}
 #tasks-board.kanban-board .kanban-cards{max-height:260px;overflow-y:auto;padding-right:2px}
-.workspace-compact #deliverables-list{max-height:120px;overflow-y:auto}
-.workspace-compact .phase-detail-section{margin-bottom:10px}
-.workspace-compact .phase-detail-label{font-size:9.5px;margin-bottom:5px}
-.workspace-compact .note-content{font-size:11.5px}
-.workspace-compact .note-content p{margin-bottom:5px}
-.workspace-compact .priority-list{font-size:11.5px}
-.workspace-compact .progress{height:5px;margin:4px 0}
-.workspace-compact .workspace-chat-transcript{max-height:160px;margin-bottom:8px}
-.workspace-compact .workspace-chat-msg{font-size:11.5px}
-.workspace-compact .workspace-chat-empty{padding:10px 8px}
-.workspace-compact .workspace-chat-empty-icon{width:28px;height:28px;margin-bottom:6px}
-.workspace-compact .workspace-chat-empty-icon svg{width:13px;height:13px}
-.workspace-compact .workspace-chat-empty-title{font-size:11.5px}
-.workspace-compact .workspace-chat-form textarea{min-height:32px;font-size:11.5px;padding:6px 8px}
-.workspace-compact textarea{min-height:50px;font-size:11.5px;padding:6px 8px}
-.workspace-compact .note-form-label{font-size:10.5px}
+.compact-view #deliverables-list{max-height:120px;overflow-y:auto}
+.compact-view .phase-detail-section{margin-bottom:10px}
+.compact-view .phase-detail-label{font-size:9.5px;margin-bottom:5px}
+.compact-view .note-content{font-size:11.5px}
+.compact-view .note-content p{margin-bottom:5px}
+.compact-view .priority-list{font-size:11.5px}
+.compact-view .progress{height:5px;margin:4px 0}
+.compact-view .workspace-chat-transcript{max-height:160px;margin-bottom:8px}
+.compact-view .workspace-chat-msg{font-size:11.5px}
+.compact-view .workspace-chat-empty{padding:10px 8px}
+.compact-view .workspace-chat-empty-icon{width:28px;height:28px;margin-bottom:6px}
+.compact-view .workspace-chat-empty-icon svg{width:13px;height:13px}
+.compact-view .workspace-chat-empty-title{font-size:11.5px}
+.compact-view .workspace-chat-form textarea{min-height:32px;font-size:11.5px;padding:6px 8px}
+.compact-view textarea{min-height:50px;font-size:11.5px;padding:6px 8px}
+.compact-view .note-form-label{font-size:10.5px}
 
 .workspace-tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--border)}
 .workspace-tab{
