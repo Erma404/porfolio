@@ -610,12 +610,14 @@ if (session) {
         cb.addEventListener('change', async () => {
           cb.disabled = true;
           await supabase.from('project_tasks').update({ fait: cb.checked }).eq('id', cb.dataset.taskId);
+          await render();
           renderPhaseDetail(phaseId);
         });
       });
       box.querySelectorAll('.task-item .file-delete[data-task-id]').forEach((btn) => {
         wireDeleteConfirm(btn, async () => {
           await supabase.from('project_tasks').delete().eq('id', btn.dataset.taskId);
+          await render();
           renderPhaseDetail(phaseId);
         });
       });
@@ -629,6 +631,7 @@ if (session) {
         await supabase.from('project_tasks').insert({
           phase_id: phaseId, titre, responsable: responsable || null, delai: delai || null,
         });
+        await render();
         renderPhaseDetail(phaseId);
       });
       const noteForm = box.querySelector('.note-form');
