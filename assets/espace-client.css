@@ -1,24 +1,25 @@
 :root{
-  --bg:#f4f4f8;
-  --sidebar:rgba(255,255,255,0.6);
+  --bg:#f5f5f4;
+  --sidebar:rgba(255,255,255,0.7);
   --surface:#ffffff;
-  --border:rgba(22,22,42,0.09);
-  --border2:rgba(22,22,42,0.16);
-  --text:#16162a;
-  --text2:rgba(22,22,42,0.52);
-  --text3:rgba(22,22,42,0.28);
-  --accent:#5b4cf5;
-  --accent2:#7c6cfa;
-  --accent-soft:rgba(91,76,245,0.09);
-  --chip-bg:rgba(22,22,42,0.05);
-  --chip-hover:rgba(22,22,42,0.09);
+  --border:rgba(24,24,27,0.08);
+  --border2:rgba(24,24,27,0.16);
+  --text:#18181b;
+  --text2:rgba(24,24,27,0.55);
+  --text3:rgba(24,24,27,0.30);
+  --accent:#ea580c;
+  --accent2:#f97316;
+  --accent-soft:rgba(234,88,12,0.10);
+  --chip-bg:rgba(24,24,27,0.05);
+  --chip-hover:rgba(24,24,27,0.09);
   --danger:#e5484d;
-  --success:#30a46c;
-  --warning:#d9a441;
+  --success:#16a34a;
+  --warning:#b45309;
+  --info:#2563eb;
   --font:'DM Sans',system-ui,sans-serif;
-  --serif:'DM Serif Display',serif;
+  --serif:'DM Sans',system-ui,sans-serif;
   --radius:16px;
-  --shadow:0 1px 2px rgba(22,22,42,0.04),0 8px 24px -12px rgba(22,22,42,0.12);
+  --shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 24px -12px rgba(0,0,0,0.12);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -92,7 +93,7 @@ nav.topbar .links a.active{color:var(--accent);font-weight:600}
 }
 .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
 .badge.a_venir{background:var(--chip-bg);color:var(--text2)}
-.badge.en_cours{background:rgba(91,76,245,0.12);color:var(--accent)}
+.badge.en_cours{background:rgba(37,99,235,0.12);color:var(--info)}
 .badge.terminee{background:rgba(48,164,108,0.12);color:var(--success)}
 .badge.onboarding{background:rgba(217,164,65,0.14);color:var(--warning)}
 .badge.actif{background:rgba(48,164,108,0.12);color:var(--success)}
@@ -132,6 +133,7 @@ tr.clickable:hover{background:var(--chip-bg)}
    APP SHELL — sidebar + main (dashboard pages)
    ══════════════════════════════════════════ */
 .app-shell{display:flex;height:100dvh;overflow:hidden}
+body.workspace-hide-sidebar .app-sidebar{display:none}
 
 .app-sidebar{
   width:248px;min-width:248px;background:var(--sidebar);
@@ -176,7 +178,7 @@ tr.clickable:hover{background:var(--chip-bg)}
 .app-content{flex:1;overflow-y:auto;padding:32px 36px 48px}
 .app-content-inner{max-width:920px;margin:0 auto;animation:fadeUp .4s ease both}
 .page-header{margin-bottom:24px}
-.page-header h1{font-family:var(--serif);font-weight:400;font-size:26px;letter-spacing:-.01em;margin:0 0 4px}
+.page-header h1{font-family:var(--serif);font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0 0 4px}
 .page-header .sub{margin:0}
 
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:19;backdrop-filter:blur(2px)}
@@ -185,7 +187,7 @@ tr.clickable:hover{background:var(--chip-bg)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 @media(max-width:860px){
-  .app-sidebar{position:fixed;top:0;bottom:0;left:0;transform:translateX(-100%);background:#fff;box-shadow:4px 0 24px rgba(22,22,42,.15)}
+  .app-sidebar{position:fixed;top:0;bottom:0;left:0;transform:translateX(-100%);background:#fff;box-shadow:4px 0 24px rgba(0,0,0,.15)}
   .app-sidebar.open{transform:translateX(0)}
   .app-topbar{display:flex}
   .menu-btn{display:flex}
@@ -231,7 +233,7 @@ tr.clickable:hover{background:var(--chip-bg)}
 .timeline-rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
 .timeline-dot{width:11px;height:11px;border-radius:50%;background:var(--border2);margin-top:3px;flex-shrink:0;border:2px solid var(--surface);box-shadow:0 0 0 2px var(--border)}
 .timeline-item.terminee .timeline-dot{background:var(--success);box-shadow:0 0 0 2px rgba(48,164,108,.25)}
-.timeline-item.en_cours .timeline-dot{background:var(--accent);box-shadow:0 0 0 2px rgba(91,76,245,.25)}
+.timeline-item.en_cours .timeline-dot{background:var(--info);box-shadow:0 0 0 2px rgba(37,99,235,.25)}
 .timeline-line{flex:1;width:2px;background:var(--border);margin-top:4px;min-height:16px}
 .timeline-item:last-child .timeline-line{display:none}
 .timeline-body{flex:1;padding-bottom:4px}
@@ -338,13 +340,29 @@ textarea:focus-visible{outline:none}
 }
 .kanban-column{
   flex:1 0 260px;min-width:260px;max-width:340px;
-  background:rgba(22,22,42,0.025);border-radius:16px;padding:14px;
+  background:rgba(0,0,0,0.025);border-radius:16px;padding:14px;
 }
 .kanban-column-head{display:flex;align-items:center;gap:8px;padding:4px 6px 12px}
 .kanban-column-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0}
-.kanban-column-dot.en_cours{background:var(--accent)}
+.kanban-column-dot.en_cours{background:var(--info)}
 .kanban-column-dot.terminee{background:var(--success)}
 .kanban-column-title{font-size:13px;font-weight:700}
+
+/* Tableaux du Workspace (dashboard + détail projet) : jamais de scroll
+   horizontal — les colonnes gardent une largeur lisible (min 220px) et
+   passent sur une seconde ligne plutôt que de s'écraser ou de déborder. */
+#tasks-board,#dashboard-board{overflow-x:visible;flex-wrap:wrap}
+#tasks-board .kanban-column,#dashboard-board .kanban-column{flex:1 1 220px;min-width:220px;max-width:320px}
+/* Colonnes du dashboard : plus carrées (moins larges, plus hautes) qu'un
+   simple bandeau plat, même quand la colonne est vide ou n'a qu'une carte. */
+#dashboard-board .kanban-column{max-width:260px}
+#dashboard-board .kanban-card{padding:18px 18px 16px}
+#dashboard-board .kanban-card-title{margin-bottom:14px}
+#dashboard-board .kanban-card-assignee{margin-bottom:12px}
+#dashboard-board .kanban-progress-row{margin-bottom:14px}
+@media(max-width:640px){
+  #tasks-board .kanban-column,#dashboard-board .kanban-column{flex:1 1 100%;min-width:0;max-width:none}
+}
 .kanban-column-count{
   font-size:11.5px;font-weight:700;color:var(--text3);background:var(--chip-bg);
   border-radius:99px;padding:1px 8px;margin-left:auto;
@@ -354,12 +372,14 @@ textarea:focus-visible{outline:none}
   background:var(--surface);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
   cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s;border:1px solid transparent;
 }
-.kanban-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(22,22,42,.05),0 14px 28px -12px rgba(22,22,42,.18)}
+.kanban-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 28px -12px rgba(0,0,0,.18)}
 .kanban-card.dragging{opacity:.35}
 .kanban-card.drag-over{border-color:var(--accent)}
 .kanban-cards.drag-over{background:var(--accent-soft);border-radius:10px}
 .kanban-card[draggable="true"]{cursor:grab}
-.kanban-card-title{font-size:14px;font-weight:600;line-height:1.35;margin-bottom:10px}
+.kanban-card-title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;line-height:1.35;margin-bottom:10px}
+.kanban-card-title svg{flex-shrink:0;opacity:.6}
+.kanban-card-meta{font-size:11.5px;color:var(--text3);margin-bottom:8px}
 .kanban-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
 .kanban-tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.2px}
 
@@ -426,13 +446,29 @@ textarea:focus-visible{outline:none}
 .filter-tab:hover{background:var(--chip-hover)}
 .filter-tab.active{background:var(--accent);color:#fff}
 
+/* ── Ajout progressif (tâche/livrable/priorité/jalon) : un déclencheur discret
+   plutôt qu'un formulaire toujours ouvert qui mange de la hauteur. ── */
+.add-item-trigger{
+  display:inline-flex;align-items:center;gap:6px;background:none;
+  border:1px dashed var(--border2);color:var(--text2);
+  padding:8px 14px;border-radius:10px;font-size:12.5px;font-weight:600;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.add-item-trigger:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.add-item-trigger svg{opacity:.8;flex-shrink:0}
+.add-item-form{margin-top:12px;display:flex;flex-direction:column;gap:8px;animation:fadeUp .18s ease both}
+.add-item-form>input{margin:0}
+.add-item-row{display:flex;gap:8px;flex-wrap:wrap}
+.add-item-row input{flex:1;min-width:100px;margin:0}
+.add-item-actions{display:flex;gap:8px;margin-top:2px}
+
 /* ── Project cards (admin) ── */
 .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .project-card{
   background:var(--surface);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);
   cursor:pointer;transition:transform .15s,box-shadow .15s;
 }
-.project-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(22,22,42,.05),0 14px 28px -12px rgba(22,22,42,.18)}
+.project-card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 28px -12px rgba(0,0,0,.18)}
 .project-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .project-card-head .avatar{width:32px;height:32px;font-size:11.5px}
 .project-card-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -440,6 +476,142 @@ textarea:focus-visible{outline:none}
 .project-card-progress-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text3);margin-bottom:2px}
 .project-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
 .project-card-foot .meta{font-size:11.5px;color:var(--text3)}
+
+/* ── Workspace (plans de projet IA, admin, indépendant des clients) ── */
+.workspace-tip{
+  background:var(--chip-bg);border-radius:12px;padding:10px 14px;margin-bottom:14px;
+  font-size:12px;line-height:1.5;color:var(--text2);
+}
+.workspace-tip strong{color:var(--text)}
+
+/* Dashboard compact : tout doit tenir sur un écran sans scroller. */
+.workspace-compact .page-header h1{font-size:16px;margin-bottom:2px}
+.workspace-compact .page-header .sub{font-size:11px;margin-bottom:0}
+.workspace-compact .section-card{padding:12px 14px;margin-bottom:10px}
+.workspace-compact .section-head{margin-bottom:8px}
+.workspace-compact .section-head h2{font-size:12px}
+.workspace-compact .kanban-column{padding:8px}
+.workspace-compact .kanban-column-head{padding:2px 4px 8px}
+.workspace-compact .kanban-column-title{font-size:10.5px}
+.workspace-compact .kanban-column-count{font-size:9.5px;padding:0 6px}
+.workspace-compact .kanban-cards{gap:6px}
+.workspace-compact .kanban-card{padding:8px 10px}
+.workspace-compact .kanban-card-title{font-size:11.5px;margin-bottom:3px;gap:4px}
+.workspace-compact .kanban-card-title svg{width:11px;height:11px}
+.workspace-compact .kanban-card-meta{font-size:9.5px;margin-bottom:0}
+.workspace-compact .kanban-card-assignee{font-size:9.5px;margin-bottom:5px;gap:5px}
+.workspace-compact .kanban-progress-row{margin-bottom:6px;gap:6px}
+.workspace-compact .kanban-progress-label{font-size:9px}
+.workspace-compact .kanban-card-foot{margin-top:4px}
+.workspace-compact .kanban-empty-col{font-size:10.5px;padding:10px 6px}
+.workspace-compact .task-item{padding:5px 0;gap:8px}
+.workspace-compact .task-title{font-size:11.5px}
+.workspace-compact .task-meta{font-size:9.5px}
+.workspace-compact .task-check{width:13px;height:13px}
+.workspace-compact .workspace-tip{font-size:11px;padding:8px 12px;margin-bottom:10px}
+.workspace-compact .btn-primary{font-size:12px;padding:7px 14px}
+.workspace-compact .btn-secondary{font-size:11.5px;padding:6px 12px}
+.workspace-compact .add-item-trigger{font-size:11px;padding:6px 11px}
+.workspace-compact .add-item-form{margin-top:8px;gap:6px}
+
+/* Compact : vue détail (tabs, chat, panneau plan/priorités/jalons, notes, formulaires). */
+.workspace-compact .workspace-tabs{margin-bottom:10px}
+.workspace-compact .workspace-tab{padding:6px 10px;font-size:11.5px}
+.workspace-compact .workspace-layout{gap:12px}
+.workspace-compact label{font-size:10.5px;margin-bottom:3px}
+.workspace-compact input[type=text],
+.workspace-compact input[type=date]{padding:6px 8px;font-size:11.5px;margin-bottom:0}
+.workspace-compact .kanban-board{gap:10px}
+#tasks-board.kanban-board .kanban-cards{max-height:260px;overflow-y:auto;padding-right:2px}
+.workspace-compact #deliverables-list{max-height:120px;overflow-y:auto}
+.workspace-compact .phase-detail-section{margin-bottom:10px}
+.workspace-compact .phase-detail-label{font-size:9.5px;margin-bottom:5px}
+.workspace-compact .note-content{font-size:11.5px}
+.workspace-compact .note-content p{margin-bottom:5px}
+.workspace-compact .priority-list{font-size:11.5px}
+.workspace-compact .progress{height:5px;margin:4px 0}
+.workspace-compact .workspace-chat-transcript{max-height:160px;margin-bottom:8px}
+.workspace-compact .workspace-chat-msg{font-size:11.5px}
+.workspace-compact .workspace-chat-empty{padding:10px 8px}
+.workspace-compact .workspace-chat-empty-icon{width:28px;height:28px;margin-bottom:6px}
+.workspace-compact .workspace-chat-empty-icon svg{width:13px;height:13px}
+.workspace-compact .workspace-chat-empty-title{font-size:11.5px}
+.workspace-compact .workspace-chat-form textarea{min-height:32px;font-size:11.5px;padding:6px 8px}
+.workspace-compact textarea{min-height:50px;font-size:11.5px;padding:6px 8px}
+.workspace-compact .note-form-label{font-size:10.5px}
+
+.workspace-tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.workspace-tab{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:9px 14px;
+  border-radius:8px 8px 0 0;background:transparent;color:var(--text2);border:none;cursor:pointer;
+  transition:background .15s,color .15s;max-width:220px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+.workspace-tab svg{flex-shrink:0;opacity:.7}
+.workspace-tab:hover{background:var(--chip-bg)}
+.workspace-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.workspace-tab.active svg{opacity:1}
+.workspace-tab:disabled{cursor:default}
+.workspace-tab-add{
+  width:30px;height:30px;padding:0;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-bottom:6px;
+}
+.workspace-tab-add:hover{background:var(--accent);color:#fff}
+
+/* ── Chat IA (panneau latéral workspace) ── */
+.workspace-chat-transcript{max-height:360px;overflow-y:auto;margin-bottom:14px}
+.workspace-chat-empty{text-align:center;padding:20px 8px}
+.workspace-chat-empty-icon{
+  width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+}
+.workspace-chat-empty-icon svg{width:19px;height:19px}
+.workspace-chat-empty-title{font-size:14.5px;font-weight:700;margin:0}
+.workspace-chat-messages{display:flex;flex-direction:column;gap:12px}
+.workspace-chat-msg{font-size:13.5px;line-height:1.5}
+.workspace-chat-msg-user{
+  align-self:flex-end;max-width:88%;background:var(--accent-soft);color:var(--text);
+  padding:8px 12px;border-radius:12px 12px 2px 12px;
+}
+.workspace-chat-msg-assistant{align-self:stretch}
+.workspace-chat-activity{
+  display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text3);margin-bottom:4px;
+}
+.workspace-chat-activity svg{width:12px;height:12px;flex-shrink:0}
+.workspace-chat-thinking{color:var(--text3);font-style:italic;display:flex;align-items:center;gap:5px}
+.workspace-chat-thinking svg{width:13px;height:13px}
+.workspace-chat-form{border-top:1px solid var(--border);padding-top:12px}
+.workspace-chat-form textarea{min-height:52px;font-size:13.5px;margin-bottom:8px;resize:none}
+.workspace-chat-actions{display:flex;align-items:center;justify-content:space-between}
+.workspace-chat-icons{display:flex;gap:4px}
+.workspace-chat-icon-btn{
+  width:28px;height:28px;padding:0;border-radius:7px;background:none;color:var(--text3);
+  display:flex;align-items:center;justify-content:center;cursor:default;opacity:.6;
+}
+.workspace-chat-icon-btn svg{width:15px;height:15px}
+.workspace-chat-send{
+  width:30px;height:30px;padding:0;border-radius:50%;background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.workspace-chat-send svg{width:15px;height:15px}
+.workspace-chat-send:hover:not(:disabled){opacity:.9}
+
+.kanban-card-assignee{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text2);margin-bottom:6px}
+
+.workspace-layout{display:flex;gap:20px;align-items:flex-start}
+.workspace-main{flex:1;min-width:0}
+.workspace-side{width:320px;flex-shrink:0}
+@media(max-width:960px){
+  .workspace-layout{flex-direction:column}
+  .workspace-side{width:100%}
+}
+
+.priority-list{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6}
+.priority-list li{margin-bottom:4px}
+
+.kanban-column-dot.demarre{background:var(--warning)}
+.kanban-column-dot.termine{background:var(--success)}
 
 /* ── Toast (remplace window.alert, non bloquant) ── */
 .toast{

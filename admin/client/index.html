@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=12"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=29"/>
 </head>
 <body>
 <div class="app-shell">
@@ -25,6 +25,10 @@
       <a href="/admin/" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Clients
+      </a>
+      <a href="/admin/workspace/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg>
+        Workspace
       </a>
     </nav>
     <div class="app-sidebar-bottom">
@@ -253,9 +257,7 @@ if (session) {
             </p>
           </div>
         </div>
-        ${client.statut !== 'archive' ? '<button class="btn-secondary" id="resend-access-btn" style="width:auto">Renvoyer les accès</button>' : ''}
       </div>
-      <div id="resend-access-msg"></div>
 
       <div class="section-card">
         <div class="section-head"><h2>Phases</h2></div>
@@ -382,21 +384,6 @@ if (session) {
       sel.classList.remove('onboarding', 'actif', 'archive');
       sel.classList.add(sel.value);
       sel.disabled = false;
-    });
-
-    document.getElementById('resend-access-btn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('resend-access-btn');
-      const msgBox = document.getElementById('resend-access-msg');
-      btn.disabled = true;
-      msgBox.innerHTML = '';
-      try {
-        await callFunction('resend-access', { client_id: clientId });
-        msgBox.innerHTML = '<div class="msg success">Nouveaux accès envoyés par email.</div>';
-      } catch (err) {
-        msgBox.innerHTML = `<div class="msg error">${err.message}</div>`;
-      } finally {
-        btn.disabled = false;
-      }
     });
 
     // ── Phases : kanban drag-and-drop (statut + réordonnancement) ──────────

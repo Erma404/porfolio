@@ -7,8 +7,8 @@
 <meta name="robots" content="noindex"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/espace-client.css?v=12"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=29"/>
 <style>
   body.login-split{min-height:100vh;display:flex;margin:0}
   .login-split-form{
@@ -26,7 +26,7 @@
     border:1px solid rgba(255,255,255,0.6);
   }
   .login-split-brand-avatar{display:block;width:64px;height:auto;margin:0 auto 10px}
-  .login-split-brand-name{display:block;font-family:var(--serif);font-size:19px;color:var(--text)}
+  .login-split-brand-name{display:block;font-family:var(--serif);font-weight:700;font-size:19px;color:var(--text)}
   .login-split-brand-sub{display:block;font-size:12.5px;color:var(--text2);margin-top:2px}
 
   @media(max-width:860px){
@@ -37,19 +37,19 @@
   .bg-blobs{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
   .blob{position:absolute;border-radius:50%}
   .blob-1{
-    width:620px;height:620px;background:radial-gradient(circle,rgba(91,76,245,0.88) 0%,transparent 62%);
+    width:620px;height:620px;background:radial-gradient(circle,rgba(234,88,12,0.85) 0%,transparent 62%);
     top:-160px;left:-140px;filter:blur(22px);animation:blobDrift1 12s ease-in-out infinite alternate;
   }
   .blob-2{
-    width:520px;height:520px;background:radial-gradient(circle,rgba(219,39,119,0.72) 0%,transparent 62%);
+    width:520px;height:520px;background:radial-gradient(circle,rgba(194,65,12,0.65) 0%,transparent 62%);
     bottom:-140px;right:-110px;filter:blur(26px);animation:blobDrift2 9s ease-in-out infinite alternate;
   }
   .blob-3{
-    width:420px;height:420px;background:radial-gradient(circle,rgba(124,108,250,0.80) 0%,transparent 62%);
+    width:420px;height:420px;background:radial-gradient(circle,rgba(249,115,22,0.80) 0%,transparent 62%);
     top:38%;left:50%;filter:blur(30px);animation:blobDrift3 15s ease-in-out infinite alternate;
   }
   .blob-4{
-    width:340px;height:340px;background:radial-gradient(circle,rgba(236,72,153,0.60) 0%,transparent 62%);
+    width:340px;height:340px;background:radial-gradient(circle,rgba(253,186,116,0.55) 0%,transparent 62%);
     top:10%;right:8%;filter:blur(28px);animation:blobDrift4 18s ease-in-out infinite alternate;
   }
   @keyframes blobDrift1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(150px,110px) scale(1.28)}}
@@ -61,26 +61,25 @@
 <body class="login-split">
 <div class="login-split-form">
   <div class="wrap">
-    <h1 style="font-family:var(--serif);font-weight:400;font-size:28px">Espace client</h1>
+    <h1 style="font-family:var(--serif);font-weight:800;font-size:28px">Espace client</h1>
     <p class="sub">Connectez-vous pour suivre votre projet.</p>
 
     <div id="msg-box"></div>
 
-    <!-- Étape 1 : email + mot de passe -->
+    <!-- Étape 1 : email -->
     <form id="login-form" class="card">
       <label for="email">Email</label>
       <input type="email" id="email" required autocomplete="email"/>
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" required autocomplete="current-password"/>
-      <button type="submit" class="btn-primary" id="login-btn">Se connecter</button>
+      <button type="submit" class="btn-primary" id="login-btn">Recevoir mon code</button>
     </form>
 
-    <!-- Étape 2 : nouveau mot de passe (première connexion uniquement) -->
-    <form id="newpass-form" class="card hidden">
-      <p class="sub" style="margin-bottom:16px">Choisissez votre mot de passe définitif.</p>
-      <label for="newpass">Nouveau mot de passe</label>
-      <input type="password" id="newpass" required minlength="8" autocomplete="new-password"/>
-      <button type="submit" class="btn-primary" id="newpass-btn">Définir mon mot de passe</button>
+    <!-- Étape 2 : code de connexion reçu par email -->
+    <form id="code-step-form" class="card hidden">
+      <p class="sub" style="margin-bottom:16px" id="code-step-sub"></p>
+      <label for="login-code">Code de connexion</label>
+      <input type="text" id="login-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required/>
+      <button type="submit" class="btn-primary" id="code-step-btn">Se connecter</button>
+      <button type="button" class="btn-secondary" id="code-step-back" style="width:100%;margin-top:10px">Changer d'email</button>
     </form>
 
     <!-- Bootstrap admin : lien d'invitation Supabase, usage unique -->
@@ -116,64 +115,62 @@ function showMsg(text, type = 'error') {
 function clearMsg() { msgBox.innerHTML = ''; }
 
 const loginForm = document.getElementById('login-form');
-const newpassForm = document.getElementById('newpass-form');
+const codeStepForm = document.getElementById('code-step-form');
+const codeStepSub = document.getElementById('code-step-sub');
+let pendingEmail = '';
 
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearMsg();
   const btn = document.getElementById('login-btn');
   btn.disabled = true;
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    btn.disabled = false;
-    showMsg('Email ou mot de passe incorrect.');
-    return;
-  }
-
-  if (data.session.user.user_metadata?.must_change_password) {
-    try {
-      await callFunction('check-temp-password', {});
-    } catch (err) {
-      btn.disabled = false;
-      await supabase.auth.signOut();
-      showMsg(err.message || 'Ce mot de passe temporaire a expiré, contactez Ernestine pour en recevoir un nouveau.');
-      return;
-    }
-    btn.disabled = false;
-    loginForm.classList.add('hidden');
-    newpassForm.classList.remove('hidden');
-  } else {
-    window.location.href = '/espace-client/';
-  }
-});
-
-newpassForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearMsg();
-  const btn = document.getElementById('newpass-btn');
-  btn.disabled = true;
-  const newPassword = document.getElementById('newpass').value;
-
-  const { error } = await supabase.auth.updateUser({
-    password: newPassword,
-    data: { must_change_password: false },
-  });
-  if (error) {
-    btn.disabled = false;
-    showMsg(error.message);
-    return;
-  }
+  pendingEmail = document.getElementById('email').value.trim();
 
   try {
-    await callFunction('complete-onboarding', {});
+    await callFunction('request-login-code', { email: pendingEmail });
   } catch (err) {
-    // Le mot de passe est déjà défini ; on n'empêche pas l'accès si cet appel échoue.
-    console.error('complete-onboarding error', err);
+    btn.disabled = false;
+    showMsg(err.message || 'Une erreur est survenue.');
+    return;
+  }
+
+  btn.disabled = false;
+  codeStepSub.textContent = `Un code à 6 chiffres a été envoyé à ${pendingEmail}.`;
+  loginForm.classList.add('hidden');
+  codeStepForm.classList.remove('hidden');
+  document.getElementById('login-code').focus();
+});
+
+codeStepForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearMsg();
+  const btn = document.getElementById('code-step-btn');
+  btn.disabled = true;
+  const code = document.getElementById('login-code').value.trim();
+
+  let token_hash;
+  try {
+    ({ token_hash } = await callFunction('verify-login-code', { email: pendingEmail, code }));
+  } catch (err) {
+    btn.disabled = false;
+    showMsg(err.message || 'Code invalide ou expiré.');
+    return;
+  }
+
+  const { error } = await supabase.auth.verifyOtp({ token_hash, type: 'magiclink' });
+  if (error) {
+    btn.disabled = false;
+    showMsg("Ce code n'a pas pu être vérifié, réessayez.");
+    return;
   }
   window.location.href = '/espace-client/';
+});
+
+document.getElementById('code-step-back').addEventListener('click', () => {
+  clearMsg();
+  codeStepForm.classList.add('hidden');
+  loginForm.classList.remove('hidden');
+  document.getElementById('login-code').value = '';
 });
 
 const ADMIN_EMAIL = 'ernestinemtb@gmail.com';
@@ -189,7 +186,7 @@ if (location.hash.includes('type=invite') || location.hash.includes('type=recove
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user?.email === ADMIN_EMAIL) {
     window.location.href = '/admin/';
-  } else if (session && !session.user.user_metadata?.must_change_password) {
+  } else if (session) {
     window.location.href = '/espace-client/';
   }
 }

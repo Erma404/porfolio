@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Workspace — Admin</title>
+<meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/espace-client.css?v=29"/>
+</head>
+<body>
+<div class="app-shell">
+  <div class="overlay" id="overlay"></div>
+  <aside class="app-sidebar" id="sidebar">
+    <div class="app-brand">
+      <div class="avatar" style="background:var(--text)">EM</div>
+      <div class="app-brand-text">
+        <div class="app-brand-name">Ernestine Matjabo</div>
+        <div class="app-brand-sub">Admin — Espace client</div>
+      </div>
+    </div>
+    <nav class="app-nav">
+      <a href="/admin/" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Clients
+      </a>
+      <a href="/admin/workspace/" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg>
+        Workspace
+      </a>
+    </nav>
+    <div class="app-sidebar-bottom">
+      <a href="#" class="nav-item" id="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <button class="menu-btn" id="menu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+      </button>
+      <strong style="font-size:14px">Workspace</strong>
+    </div>
+    <div class="app-content">
+      <div class="app-content-inner" id="content" style="max-width:1360px">
+        <p class="sub">Chargement…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="task-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="task-modal-close" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <div class="modal-header"><h2>Modifier la tâche</h2></div>
+    <div class="modal-body">
+      <form id="task-edit-form">
+        <label for="edit-task-nom">Nom</label>
+        <input type="text" id="edit-task-nom" required/>
+        <label for="edit-task-responsable">Responsable</label>
+        <input type="text" id="edit-task-responsable"/>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="edit-task-debut">Début</label><input type="date" id="edit-task-debut"/></div>
+          <div style="flex:1"><label for="edit-task-fin">Fin</label><input type="date" id="edit-task-fin"/></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1"><label for="edit-task-budget">Budget (€)</label><input type="text" inputmode="decimal" id="edit-task-budget"/></div>
+          <div style="flex:1">
+            <label for="edit-task-statut">Statut</label>
+            <select id="edit-task-statut" class="badge" style="width:100%;text-align:left;text-transform:none;letter-spacing:normal;font-weight:500;padding:11px 13px">
+              <option value="non_demarre">Non démarré</option>
+              <option value="demarre">Démarré</option>
+              <option value="en_cours">En cours</option>
+              <option value="termine">Terminé</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:6px">
+          <button type="button" class="file-download file-delete" id="task-modal-delete" title="Supprimer la tâche">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+          <button type="submit" class="btn-primary" style="width:auto">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { supabase, requireAdminSession, callFunction } from '/assets/supabase-client.js';
+
+const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>';
+const ICON_DOC_SMALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/></svg>';
+const ICON_FOLDER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+const ICON_SPARKLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg>';
+const ICON_PAPERCLIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05 12.25 20.24a5 5 0 0 1-7.07-7.07L14.36 3.9a3.5 3.5 0 0 1 4.95 4.95L10.13 18.02a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
+const ICON_LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+const ICON_SEND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
+const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
+
+const TASK_COLUMNS = [
+  { statut: 'non_demarre', label: 'Non démarré' },
+  { statut: 'demarre', label: 'Démarré' },
+  { statut: 'en_cours', label: 'En cours' },
+  { statut: 'termine', label: 'Terminé' },
+];
+
+function money(n) {
+  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function renderInline(text) {
+  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+function initials(name) {
+  return (name || '').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || '?';
+}
+// Même rendu "markdown-lite" que les comptes-rendus de phase (admin/client/index.html).
+function renderNoteContent(raw) {
+  const lines = (raw || '').split('\n');
+  let html = '';
+  let listDepth = 0;
+  let paragraph = [];
+  const flushParagraph = () => {
+    if (paragraph.length) { html += `<p>${paragraph.join('<br>')}</p>`; paragraph = []; }
+  };
+  const closeLists = () => { while (listDepth > 0) { html += '</ul>'; listDepth--; } };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed === '') { flushParagraph(); closeLists(); return; }
+
+    const heading = trimmed.match(/^(#{1,3})\s+(.*)$/);
+    if (heading) {
+      flushParagraph(); closeLists();
+      const level = heading[1].length + 2;
+      html += `<h${level}>${renderInline(heading[2])}</h${level}>`;
+      return;
+    }
+
+    const bullet = line.match(/^(\s*)[-*•]\s+(.*)$/);
+    if (bullet) {
+      flushParagraph();
+      const depth = Math.min(Math.floor(bullet[1].length / 2) + 1, 4);
+      while (listDepth < depth) { html += '<ul>'; listDepth++; }
+      while (listDepth > depth) { html += '</ul>'; listDepth--; }
+      html += `<li>${renderInline(bullet[2])}</li>`;
+      return;
+    }
+
+    closeLists();
+    paragraph.push(renderInline(trimmed));
+  });
+  flushParagraph();
+  closeLists();
+  return html;
+}
+
+function wireDeleteConfirm(btn, onConfirm) {
+  let timeout;
+  btn.addEventListener('click', () => {
+    if (btn.dataset.armed !== 'true') {
+      btn.dataset.armed = 'true';
+      btn.classList.add('confirm-armed');
+      timeout = setTimeout(() => {
+        btn.dataset.armed = 'false';
+        btn.classList.remove('confirm-armed');
+      }, 3000);
+      return;
+    }
+    clearTimeout(timeout);
+    btn.disabled = true;
+    onConfirm();
+  });
+}
+
+function showToast(message, type = 'error') {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+function renderChatTranscript(messages) {
+  if (!messages || messages.length === 0) {
+    return `
+      <div class="workspace-chat-empty">
+        <div class="workspace-chat-empty-icon">${ICON_SPARKLE}</div>
+        <p class="workspace-chat-empty-title">Prêt à travailler sur le projet ?</p>
+        <p class="sub" style="margin:4px 0 0">Décris le projet, partage des infos, ou pose une question. Je t'aide à passer à l'étape suivante.</p>
+      </div>
+    `;
+  }
+  return `<div class="workspace-chat-messages">${messages.map((m) => m.role === 'user' ? `
+    <div class="workspace-chat-msg workspace-chat-msg-user">${escapeHtml(m.content)}</div>
+  ` : `
+    <div class="workspace-chat-msg workspace-chat-msg-assistant">
+      ${m.actions_summary ? `<div class="workspace-chat-activity">${ICON_SPARKLE}${escapeHtml(m.actions_summary)}</div>` : ''}
+      <div class="workspace-chat-text">${escapeHtml(m.content)}</div>
+    </div>
+  `).join('')}</div>`;
+}
+
+const session = await requireAdminSession();
+if (session) {
+  const content = document.getElementById('content');
+
+  let activeDocId = new URLSearchParams(location.search).get('doc');
+  let draftMode = false;
+  let taskView = 'by_status';
+  let sidePanelTab = 'plan';
+  let openAddForm = { task: false, deliverable: false, priority: false, milestone: false };
+
+  function addItemTrigger(key, label) {
+    return `<button type="button" class="add-item-trigger" data-add-key="${key}">${ICON_PLUS} ${label}</button>`;
+  }
+
+  function taskCardHtml(t, draggable) {
+    return `
+      <div class="kanban-card" draggable="${draggable}" data-task-id="${t.id}">
+        <div class="kanban-card-title">${ICON_FOLDER}${escapeHtml(t.nom)}</div>
+        ${t.responsable ? `
+        <div class="kanban-card-assignee">
+          <span class="avatar" style="width:20px;height:20px;font-size:9px">${initials(t.responsable)}</span>
+          <span>${escapeHtml(t.responsable)}</span>
+        </div>` : ''}
+        ${t.date_debut || t.date_fin ? `<div class="kanban-card-meta">${t.date_debut ? new Date(t.date_debut).toLocaleDateString('fr-FR') : '?'} → ${t.date_fin ? new Date(t.date_fin).toLocaleDateString('fr-FR') : '?'}</div>` : ''}
+        <div class="kanban-card-foot">
+          <span class="kanban-card-date">${t.budget != null ? money(t.budget) : ''}</span>
+          <button class="file-download file-delete" data-task-id="${t.id}" title="Supprimer" style="width:26px;height:26px">${ICON_TRASH}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function setActiveDoc(id) {
+    activeDocId = id;
+    const url = new URL(location.href);
+    if (id) url.searchParams.set('doc', id); else url.searchParams.delete('doc');
+    history.replaceState(null, '', url);
+  }
+
+  // ── Modale d'édition de tâche (DOM statique, en dehors de #content) ──────
+  let editingTaskId = null;
+  const taskModalOverlay = document.getElementById('task-modal-overlay');
+  const taskEditForm = document.getElementById('task-edit-form');
+  function openTaskModal(task) {
+    editingTaskId = task.id;
+    document.getElementById('edit-task-nom').value = task.nom || '';
+    document.getElementById('edit-task-responsable').value = task.responsable || '';
+    document.getElementById('edit-task-debut').value = task.date_debut || '';
+    document.getElementById('edit-task-fin').value = task.date_fin || '';
+    document.getElementById('edit-task-budget').value = task.budget != null ? task.budget : '';
+    document.getElementById('edit-task-statut').value = task.statut || 'non_demarre';
+    taskModalOverlay.classList.add('open');
+  }
+  function closeTaskModal() {
+    taskModalOverlay.classList.remove('open');
+    editingTaskId = null;
+  }
+  document.getElementById('task-modal-close').addEventListener('click', closeTaskModal);
+  taskModalOverlay.addEventListener('click', (e) => { if (e.target === taskModalOverlay) closeTaskModal(); });
+  taskEditForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!editingTaskId) return;
+    const nom = document.getElementById('edit-task-nom').value.trim();
+    if (!nom) return;
+    const responsable = document.getElementById('edit-task-responsable').value.trim();
+    const date_debut = document.getElementById('edit-task-debut').value;
+    const date_fin = document.getElementById('edit-task-fin').value;
+    const budgetRaw = document.getElementById('edit-task-budget').value.trim();
+    const budget = budgetRaw ? parseFloat(budgetRaw.replace(',', '.')) : null;
+    const statut = document.getElementById('edit-task-statut').value;
+    await supabase.from('workspace_tasks').update({
+      nom, responsable: responsable || null,
+      date_debut: date_debut || null, date_fin: date_fin || null,
+      budget: budget != null && !isNaN(budget) ? budget : null,
+      statut,
+    }).eq('id', editingTaskId);
+    closeTaskModal();
+    await render();
+  });
+  document.getElementById('task-modal-delete').addEventListener('click', async () => {
+    if (!editingTaskId) return;
+    await supabase.from('workspace_tasks').delete().eq('id', editingTaskId);
+    closeTaskModal();
+    await render();
+  });
+
+  await render();
+
+  async function render() {
+    const { data: documents } = await supabase
+      .from('workspace_documents')
+      .select('id, titre, client, statut, created_at')
+      .order('created_at', { ascending: false });
+
+    const showLanding = !draftMode && (!activeDocId || !(documents || []).some((d) => d.id === activeDocId));
+
+    if (showLanding) {
+      if (activeDocId) setActiveDoc(null);
+      document.body.classList.remove('workspace-hide-sidebar');
+
+      const docIds = (documents || []).map((d) => d.id);
+      const [{ data: allDeliverables }, { data: allTasks }, { data: allMilestones }] = await Promise.all([
+        docIds.length ? supabase.from('workspace_deliverables').select('id, titre, fait, document_id').in('document_id', docIds).order('ordre') : Promise.resolve({ data: [] }),
+        docIds.length ? supabase.from('workspace_tasks').select('document_id, budget').in('document_id', docIds) : Promise.resolve({ data: [] }),
+        docIds.length ? supabase.from('workspace_milestones').select('document_id, fait').in('document_id', docIds) : Promise.resolve({ data: [] }),
+      ]);
+      const titreById = {};
+      (documents || []).forEach((d) => { titreById[d.id] = d.titre; });
+      const budgetByDoc = {};
+      (allTasks || []).forEach((t) => {
+        if (t.budget != null) budgetByDoc[t.document_id] = (budgetByDoc[t.document_id] || 0) + Number(t.budget);
+      });
+      const milestonesByDoc = {};
+      (allMilestones || []).forEach((m) => {
+        const s = milestonesByDoc[m.document_id] || { done: 0, total: 0 };
+        s.total++;
+        if (m.fait) s.done++;
+        milestonesByDoc[m.document_id] = s;
+      });
+
+      content.innerHTML = `
+        <div class="workspace-compact">
+        <div class="page-header">
+          <h1>Bonjour Ernestine</h1>
+          <p class="sub">Plans de projet pilotés avec l'IA.</p>
+        </div>
+        <div class="workspace-tip">
+          <strong>Astuce :</strong> clique sur un projet pour voir son détail (tableau, priorités, jalons), glisse une carte pour changer son statut, ou crée un nouveau plan en discutant avec l'IA.
+        </div>
+
+        <div class="section-card">
+          <div class="section-head"><h2>Projets</h2></div>
+          <div class="kanban-board" id="dashboard-board">
+            ${TASK_COLUMNS.map((col) => {
+              const colDocs = (documents || []).filter((d) => (d.statut || 'non_demarre') === col.statut);
+              return `
+              <div class="kanban-column" data-statut="${col.statut}">
+                <div class="kanban-column-head">
+                  <span class="kanban-column-dot ${col.statut}"></span>
+                  <span class="kanban-column-title">${col.label}</span>
+                  <span class="kanban-column-count">${colDocs.length}</span>
+                </div>
+                <div class="kanban-cards" data-statut="${col.statut}">
+                  ${colDocs.map((d) => {
+                    const ms = milestonesByDoc[d.id];
+                    const msPct = ms && ms.total ? Math.round((ms.done / ms.total) * 100) : null;
+                    const budget = budgetByDoc[d.id];
+                    return `
+                    <div class="kanban-card" draggable="true" data-doc-id="${d.id}">
+                      <div class="kanban-card-title">${ICON_DOC_SMALL}${escapeHtml(d.titre)}</div>
+                      ${d.client ? `
+                      <div class="kanban-card-assignee">
+                        <span class="avatar" style="width:18px;height:18px;font-size:8px">${initials(d.client)}</span>
+                        <span>${escapeHtml(d.client)}</span>
+                      </div>` : ''}
+                      ${msPct !== null ? `
+                      <div class="kanban-progress-row">
+                        <div class="progress"><div class="progress-bar ${msPct === 100 ? 'success' : ''}" style="width:${msPct}%"></div></div>
+                        <span class="kanban-progress-label">${ms.done}/${ms.total}</span>
+                      </div>` : ''}
+                      <div class="kanban-card-foot">
+                        <span class="kanban-card-date">${budget != null ? money(budget) : ''}</span>
+                        <span class="kanban-card-date">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                    </div>
+                  `;
+                  }).join('') || '<div class="kanban-empty-col">Rien ici</div>'}
+                </div>
+              </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-head"><h2>Livrables (tous les projets)</h2></div>
+          <div class="task-list" id="all-deliverables-list">
+            ${(allDeliverables || []).length === 0 ? '<p class="sub" style="margin:0">Aucun livrable pour l\'instant.</p>' : allDeliverables.map((d) => `
+              <div class="task-item">
+                <input type="checkbox" class="all-deliverable-check" data-deliverable-id="${d.id}" ${d.fait ? 'checked' : ''}/>
+                <div class="task-info">
+                  <div class="task-title ${d.fait ? 'done' : ''}">${escapeHtml(d.titre)}</div>
+                  <div class="task-meta">${escapeHtml(titreById[d.document_id] || '')}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <button class="btn-primary" id="landing-new-doc-btn" style="width:auto;margin-top:6px">+ Nouveau plan</button>
+        </div>
+      `;
+
+      content.querySelectorAll('#dashboard-board .kanban-card[data-doc-id]').forEach((card) => {
+        card.addEventListener('click', () => {
+          draftMode = false;
+          setActiveDoc(card.dataset.docId);
+          render();
+        });
+      });
+      let draggedDocId = null;
+      content.querySelectorAll('#dashboard-board .kanban-card[data-doc-id]').forEach((card) => {
+        card.addEventListener('dragstart', (e) => {
+          draggedDocId = card.dataset.docId;
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => {
+          content.querySelectorAll('#dashboard-board .kanban-card, #dashboard-board .kanban-cards').forEach((el) => el.classList.remove('dragging', 'drag-over'));
+        });
+      });
+      content.querySelectorAll('#dashboard-board .kanban-cards[data-statut]').forEach((col) => {
+        col.addEventListener('dragover', (e) => {
+          if (!draggedDocId) return;
+          e.preventDefault();
+          col.classList.add('drag-over');
+        });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          col.classList.remove('drag-over');
+          if (!draggedDocId) return;
+          await supabase.from('workspace_documents').update({ statut: col.dataset.statut }).eq('id', draggedDocId);
+          draggedDocId = null;
+          await render();
+        });
+      });
+      content.querySelectorAll('.all-deliverable-check').forEach((cb) => {
+        cb.addEventListener('change', async () => {
+          cb.disabled = true;
+          await supabase.from('workspace_deliverables').update({ fait: cb.checked }).eq('id', cb.dataset.deliverableId);
+          await render();
+        });
+      });
+      document.getElementById('landing-new-doc-btn').addEventListener('click', () => {
+        draftMode = true;
+        render();
+      });
+      return;
+    }
+
+    let doc, priorities, milestones, tasks, deliverables, notes, messages;
+    if (draftMode) {
+      doc = { titre: 'Nouveau plan', plan_directeur: '' };
+      priorities = []; milestones = []; tasks = []; deliverables = []; notes = []; messages = [];
+    } else {
+      const results = await Promise.all([
+        supabase.from('workspace_documents').select('*').eq('id', activeDocId).single(),
+        supabase.from('workspace_priorities').select('*').eq('document_id', activeDocId).order('ordre'),
+        supabase.from('workspace_milestones').select('*').eq('document_id', activeDocId).order('ordre'),
+        supabase.from('workspace_tasks').select('*').eq('document_id', activeDocId).order('ordre'),
+        supabase.from('workspace_deliverables').select('*').eq('document_id', activeDocId).order('ordre'),
+        supabase.from('workspace_notes').select('*').eq('document_id', activeDocId).order('created_at', { ascending: false }),
+        supabase.from('workspace_messages').select('*').eq('document_id', activeDocId).order('created_at', { ascending: true }),
+      ]);
+      doc = results[0].data; priorities = results[1].data; milestones = results[2].data;
+      tasks = results[3].data; deliverables = results[4].data; notes = results[5].data; messages = results[6].data;
+    }
+
+    const milestoneDone = (milestones || []).filter((m) => m.fait).length;
+    const milestoneTotal = (milestones || []).length;
+    const milestonePct = milestoneTotal ? Math.round((milestoneDone / milestoneTotal) * 100) : 0;
+    const hasDoc = !draftMode;
+    document.body.classList.add('workspace-hide-sidebar');
+
+    content.innerHTML = `
+      <div class="workspace-compact">
+      <p class="sub" style="margin-bottom:16px;display:flex;gap:14px;align-items:center">
+        <span id="back-to-landing"><a href="#">← Tous les plans</a></span>
+        <span style="margin-left:auto;display:flex;gap:14px">
+          <a href="/admin/">Clients</a>
+          <a href="#" id="workspace-logout-inline">Déconnexion</a>
+        </span>
+      </p>
+      <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <h1>Workspace</h1>
+          <p class="sub">Plans de projet pilotés avec l'IA, sauvegardés sous forme d'onglets.</p>
+        </div>
+        ${hasDoc ? `<button class="file-download file-delete" id="delete-doc-btn" title="Supprimer ce plan">${ICON_TRASH}</button>` : ''}
+      </div>
+
+      <div class="workspace-tabs" id="workspace-tabs">
+        ${(documents || []).map((d) => `<button type="button" class="workspace-tab ${!draftMode && d.id === activeDocId ? 'active' : ''}" data-doc-id="${d.id}">${ICON_DOC_SMALL}${escapeHtml(d.titre)}</button>`).join('')}
+        ${draftMode ? `<button type="button" class="workspace-tab active" disabled>${ICON_DOC_SMALL}Nouveau plan</button>` : ''}
+        <button type="button" class="workspace-tab workspace-tab-add" id="workspace-add-tab" title="Nouveau plan">+</button>
+      </div>
+
+      <div class="workspace-layout">
+        <div class="workspace-main">
+          <div class="section-card">
+            <div class="section-head"><h2>Projets</h2></div>
+            <div class="filter-tabs" id="task-view-tabs">
+              <button type="button" class="filter-tab ${taskView === 'by_status' ? 'active' : ''}" data-view="by_status">Par statut</button>
+              <button type="button" class="filter-tab ${taskView === 'active' ? 'active' : ''}" data-view="active">Actif</button>
+              <button type="button" class="filter-tab ${taskView === 'completed' ? 'active' : ''}" data-view="completed">Terminé</button>
+              <button type="button" class="filter-tab ${taskView === 'all' ? 'active' : ''}" data-view="all">Tous</button>
+            </div>
+            ${taskView === 'by_status' ? `
+            <div class="kanban-board" id="tasks-board">
+              ${TASK_COLUMNS.map((col) => {
+                const colTasks = (tasks || []).filter((t) => t.statut === col.statut);
+                return `
+                <div class="kanban-column" data-statut="${col.statut}">
+                  <div class="kanban-column-head">
+                    <span class="kanban-column-dot ${col.statut}"></span>
+                    <span class="kanban-column-title">${col.label}</span>
+                    <span class="kanban-column-count">${colTasks.length}</span>
+                  </div>
+                  <div class="kanban-cards" data-statut="${col.statut}">
+                    ${colTasks.map((t) => taskCardHtml(t, true)).join('') || '<div class="kanban-empty-col">Rien ici</div>'}
+                  </div>
+                </div>
+                `;
+              }).join('')}
+            </div>
+            ` : `
+            <div class="kanban-cards" id="tasks-flat-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+              ${(() => {
+                const filtered = (tasks || []).filter((t) => {
+                  if (taskView === 'active') return t.statut === 'demarre' || t.statut === 'en_cours';
+                  if (taskView === 'completed') return t.statut === 'termine';
+                  return true;
+                });
+                return filtered.map((t) => taskCardHtml(t, false)).join('') || '<div class="kanban-empty-col">Rien ici</div>';
+              })()}
+            </div>
+            `}
+            ${!openAddForm.task ? `
+            <div style="margin-top:14px">${addItemTrigger('task', 'Nouvelle tâche')}</div>
+            ` : `
+            <form id="add-task-form" class="add-item-form">
+              <input type="text" id="task-nom" placeholder="Nom de la tâche" aria-label="Nom de la tâche" required autofocus/>
+              <div class="add-item-row">
+                <input type="text" id="task-responsable" placeholder="Responsable" aria-label="Responsable"/>
+                <input type="date" id="task-debut" aria-label="Date de début"/>
+                <input type="date" id="task-fin" aria-label="Date de fin"/>
+                <input type="text" inputmode="decimal" id="task-budget" placeholder="Budget €" aria-label="Budget"/>
+              </div>
+              <div class="add-item-actions">
+                <button type="submit" class="btn-primary" style="width:auto">Ajouter la tâche</button>
+                <button type="button" class="btn-secondary" data-cancel-key="task" style="width:auto">Annuler</button>
+              </div>
+            </form>
+            `}
+          </div>
+
+          <div class="section-card">
+            <div class="section-head"><h2>Checklist des livrables</h2></div>
+            <div class="task-list" id="deliverables-list">
+              ${(deliverables || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucun livrable pour l\'instant.</p>' : (deliverables || []).map((d) => `
+                <div class="task-item">
+                  <input type="checkbox" class="deliverable-check" data-deliverable-id="${d.id}" ${d.fait ? 'checked' : ''}/>
+                  <div class="task-info">
+                    <div class="task-title ${d.fait ? 'done' : ''}">${escapeHtml(d.titre)}</div>
+                  </div>
+                  <button class="file-download file-delete" data-deliverable-id="${d.id}" title="Supprimer">${ICON_TRASH}</button>
+                </div>
+              `).join('')}
+            </div>
+            ${!openAddForm.deliverable ? `
+            <div style="margin-top:12px">${addItemTrigger('deliverable', 'Nouveau livrable')}</div>
+            ` : `
+            <form id="add-deliverable-form" class="add-item-form">
+              <input type="text" id="deliverable-titre" placeholder="Nom du livrable" aria-label="Nom du livrable" required autofocus/>
+              <div class="add-item-actions">
+                <button type="submit" class="btn-primary" style="width:auto">Ajouter</button>
+                <button type="button" class="btn-secondary" data-cancel-key="deliverable" style="width:auto">Annuler</button>
+              </div>
+            </form>
+            `}
+          </div>
+        </div>
+
+        <aside class="workspace-side">
+          <div class="section-card">
+            <div class="workspace-chat-transcript" id="chat-transcript">${renderChatTranscript(messages)}</div>
+            <form id="chat-form" class="workspace-chat-form">
+              <textarea id="chat-input" rows="2" placeholder="Que dois-tu faire ?"></textarea>
+              <div class="workspace-chat-actions">
+                <div class="workspace-chat-icons">
+                  <button type="button" class="workspace-chat-icon-btn" title="Joindre un fichier">${ICON_PAPERCLIP}</button>
+                  <button type="button" class="workspace-chat-icon-btn" title="Lien">${ICON_LINK}</button>
+                </div>
+                <button type="submit" class="workspace-chat-send" id="chat-send" title="Envoyer">${ICON_SEND}</button>
+              </div>
+            </form>
+          </div>
+
+          ${(messages || []).length > 0 ? `
+          <div class="section-card">
+            <div class="filter-tabs" id="side-panel-tabs">
+              <button type="button" class="filter-tab ${sidePanelTab === 'plan' ? 'active' : ''}" data-tab="plan">Plan directeur</button>
+              <button type="button" class="filter-tab ${sidePanelTab === 'priorites' ? 'active' : ''}" data-tab="priorites">Priorités</button>
+              <button type="button" class="filter-tab ${sidePanelTab === 'avancement' ? 'active' : ''}" data-tab="avancement">Avancement</button>
+              <button type="button" class="filter-tab ${sidePanelTab === 'notes' ? 'active' : ''}" data-tab="notes">Notes</button>
+            </div>
+
+            ${sidePanelTab === 'plan' ? `
+            <div class="phase-detail-section">
+              <div class="note-content">${renderNoteContent(doc.plan_directeur || '')}</div>
+            </div>
+            ` : ''}
+
+            ${sidePanelTab === 'priorites' ? `
+            <div class="phase-detail-section">
+              <ul class="priority-list" id="priorities-list">
+                ${(priorities || []).map((p) => `<li>${escapeHtml(p.contenu)} <button type="button" class="file-download file-delete" data-priority-id="${p.id}" title="Supprimer" style="width:22px;height:22px;display:inline-flex;vertical-align:middle;margin-left:4px">${ICON_TRASH}</button></li>`).join('') || '<li class="sub" style="list-style:none;margin-left:-20px">Aucune priorité.</li>'}
+              </ul>
+              ${!openAddForm.priority ? addItemTrigger('priority', 'Nouvelle priorité') : `
+              <form id="add-priority-form" class="add-item-form">
+                <input type="text" id="priority-contenu" placeholder="Nouvelle priorité" aria-label="Nouvelle priorité" required autofocus/>
+                <div class="add-item-actions">
+                  <button type="submit" class="btn-primary" style="width:auto">Ajouter</button>
+                  <button type="button" class="btn-secondary" data-cancel-key="priority" style="width:auto">Annuler</button>
+                </div>
+              </form>
+              `}
+            </div>
+            ` : ''}
+
+            ${sidePanelTab === 'avancement' ? `
+            <div class="phase-detail-section">
+              <div class="progress"><div class="progress-bar ${milestonePct === 100 ? 'success' : ''}" style="width:${milestonePct}%"></div></div>
+              <p class="sub" style="margin:6px 0 12px">${milestoneDone}/${milestoneTotal} jalons complétés</p>
+              <div class="task-list" id="milestones-list">
+                ${(milestones || []).map((m) => `
+                  <div class="task-item">
+                    <input type="checkbox" class="milestone-check" data-milestone-id="${m.id}" ${m.fait ? 'checked' : ''}/>
+                    <div class="task-info">
+                      <div class="task-title ${m.fait ? 'done' : ''}">${escapeHtml(m.titre)}</div>
+                    </div>
+                    <button class="file-download file-delete" data-milestone-id="${m.id}" title="Supprimer">${ICON_TRASH}</button>
+                  </div>
+                `).join('') || '<p class="sub" style="margin:0;font-size:13px">Aucun jalon.</p>'}
+              </div>
+              ${!openAddForm.milestone ? addItemTrigger('milestone', 'Nouveau jalon') : `
+              <form id="add-milestone-form" class="add-item-form">
+                <input type="text" id="milestone-titre" placeholder="Nouveau jalon" aria-label="Nouveau jalon" required autofocus/>
+                <div class="add-item-actions">
+                  <button type="submit" class="btn-primary" style="width:auto">Ajouter</button>
+                  <button type="button" class="btn-secondary" data-cancel-key="milestone" style="width:auto">Annuler</button>
+                </div>
+              </form>
+              `}
+            </div>
+            ` : ''}
+
+            ${sidePanelTab === 'notes' ? `
+            <div class="phase-detail-section">
+              <div id="notes-list">
+                ${(notes || []).length === 0 ? '<p class="sub" style="margin:0;font-size:13px">Aucune note pour l\'instant.</p>' : (notes || []).map((n) => `
+                  <div class="note-item">
+                    <div class="note-item-head">
+                      <div class="note-content">${renderNoteContent(n.contenu)}</div>
+                      <div class="file-actions">
+                        <button class="file-download note-edit" data-note-id="${n.id}" title="Modifier">${ICON_EDIT}</button>
+                        <button class="file-download file-delete" data-note-id="${n.id}" title="Supprimer">${ICON_TRASH}</button>
+                      </div>
+                    </div>
+                    <div class="meta">${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+                  </div>
+                `).join('')}
+              </div>
+              <form class="note-form" id="note-form" data-editing-id="">
+                <label class="note-form-label" id="note-form-label">Ajouter une note</label>
+                <textarea class="note-textarea" id="note-textarea" rows="4" placeholder="# Titre, - liste, **gras**"></textarea>
+                <div style="margin-top:10px;display:flex;gap:8px">
+                  <button type="submit" class="btn-secondary note-submit" id="note-submit">Ajouter</button>
+                  <button type="button" class="btn-secondary note-cancel" id="note-cancel" style="display:none">Annuler</button>
+                </div>
+              </form>
+            </div>
+            ` : ''}
+          </div>
+          ` : ''}
+        </aside>
+      </div>
+      </div>
+    `;
+
+    const transcriptEl = document.getElementById('chat-transcript');
+    transcriptEl.scrollTop = transcriptEl.scrollHeight;
+
+    // ── Onglets ──────────────────────────────────────────────────────────
+    content.querySelectorAll('.workspace-tab[data-doc-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        draftMode = false;
+        setActiveDoc(btn.dataset.docId);
+        render();
+      });
+    });
+    document.getElementById('workspace-add-tab').addEventListener('click', () => {
+      draftMode = true;
+      render();
+    });
+
+    document.getElementById('back-to-landing').querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+      draftMode = false;
+      setActiveDoc(null);
+      render();
+    });
+    document.getElementById('workspace-logout-inline').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      window.location.href = '/admin/';
+    });
+
+    document.querySelectorAll('#task-view-tabs .filter-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        taskView = btn.dataset.view;
+        render();
+      });
+    });
+
+    document.querySelectorAll('#side-panel-tabs .filter-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sidePanelTab = btn.dataset.tab;
+        render();
+      });
+    });
+
+    content.querySelectorAll('.add-item-trigger[data-add-key]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        openAddForm[btn.dataset.addKey] = true;
+        render();
+      });
+    });
+    content.querySelectorAll('[data-cancel-key]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        openAddForm[btn.dataset.cancelKey] = false;
+        render();
+      });
+    });
+
+    if (hasDoc) {
+      wireDeleteConfirm(document.getElementById('delete-doc-btn'), async () => {
+        await supabase.from('workspace_documents').delete().eq('id', activeDocId);
+        activeDocId = null;
+        draftMode = false;
+        setActiveDoc(null);
+        await render();
+      });
+    }
+
+    // ── Chat IA ──────────────────────────────────────────────────────────
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = chatInput.value.trim();
+      if (!message) return;
+      chatInput.value = '';
+      chatInput.disabled = true;
+      chatSend.disabled = true;
+
+      let list = transcriptEl.querySelector('.workspace-chat-messages');
+      if (!list) {
+        transcriptEl.innerHTML = '<div class="workspace-chat-messages"></div>';
+        list = transcriptEl.querySelector('.workspace-chat-messages');
+      }
+      list.insertAdjacentHTML('beforeend', `<div class="workspace-chat-msg workspace-chat-msg-user">${escapeHtml(message)}</div>`);
+      list.insertAdjacentHTML('beforeend', `<div class="workspace-chat-msg workspace-chat-msg-assistant workspace-chat-thinking" id="chat-thinking">${ICON_SPARKLE}Réflexion…</div>`);
+      transcriptEl.scrollTop = transcriptEl.scrollHeight;
+
+      try {
+        const { document_id } = await callFunction('workspace-chat', { document_id: draftMode ? null : activeDocId, message });
+        draftMode = false;
+        setActiveDoc(document_id);
+        await render();
+      } catch (err) {
+        document.getElementById('chat-thinking')?.remove();
+        showToast(err.message);
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+      }
+    });
+
+    if (!hasDoc) return;
+
+    // ── Tâches : kanban drag-and-drop ───────────────────────────────────
+    let draggedTaskId = null;
+
+    async function changeTaskStatut(taskId, statut) {
+      await supabase.from('workspace_tasks').update({ statut }).eq('id', taskId);
+    }
+
+    async function handleTaskDrop(targetCardId, targetStatut) {
+      if (!draggedTaskId) return;
+      const dragged = (tasks || []).find((t) => t.id === draggedTaskId);
+      const oldStatut = dragged.statut;
+      const ids = (tasks || []).map((t) => t.id);
+      const fromIdx = ids.indexOf(draggedTaskId);
+      ids.splice(fromIdx, 1);
+
+      let insertIdx;
+      if (targetCardId && targetCardId !== draggedTaskId) {
+        insertIdx = ids.indexOf(targetCardId);
+      } else {
+        const remaining = (tasks || []).filter((t) => t.id !== draggedTaskId);
+        let lastIdxOfCol = -1;
+        remaining.forEach((t, idx) => { if (t.statut === targetStatut) lastIdxOfCol = idx; });
+        insertIdx = lastIdxOfCol + 1;
+      }
+      ids.splice(insertIdx, 0, draggedTaskId);
+      draggedTaskId = null;
+
+      await Promise.all(ids.map((id, idx) => supabase.from('workspace_tasks').update({ ordre: idx + 1 }).eq('id', id)));
+      if (oldStatut !== targetStatut) await changeTaskStatut(dragged.id, targetStatut);
+      await render();
+    }
+
+    content.querySelectorAll('.kanban-card[data-task-id]').forEach((card) => {
+      card.addEventListener('dragstart', (e) => {
+        draggedTaskId = card.dataset.taskId;
+        e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('dragging');
+      });
+      card.addEventListener('dragend', () => {
+        content.querySelectorAll('.kanban-card, .kanban-cards').forEach((el) => el.classList.remove('dragging', 'drag-over'));
+      });
+      card.addEventListener('dragover', (e) => {
+        if (!draggedTaskId || draggedTaskId === card.dataset.taskId) return;
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+      card.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.remove('drag-over');
+        await handleTaskDrop(card.dataset.taskId, card.closest('.kanban-column').dataset.statut);
+      });
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.file-delete')) return;
+        const task = (tasks || []).find((t) => t.id === card.dataset.taskId);
+        if (task) openTaskModal(task);
+      });
+    });
+    content.querySelectorAll('.kanban-cards[data-statut]').forEach((col) => {
+      col.addEventListener('dragover', (e) => {
+        if (!draggedTaskId) return;
+        e.preventDefault();
+        col.classList.add('drag-over');
+      });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', async (e) => {
+        if (e.target !== col) return;
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        await handleTaskDrop(null, col.dataset.statut);
+      });
+    });
+    content.querySelectorAll('.kanban-card[data-task-id] .file-delete[data-task-id]').forEach((btn) => {
+      wireDeleteConfirm(btn, async () => {
+        await supabase.from('workspace_tasks').delete().eq('id', btn.dataset.taskId);
+        await render();
+      });
+    });
+    document.getElementById('add-task-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nom = document.getElementById('task-nom').value.trim();
+      if (!nom) return;
+      const responsable = document.getElementById('task-responsable').value.trim();
+      const date_debut = document.getElementById('task-debut').value;
+      const date_fin = document.getElementById('task-fin').value;
+      const budgetRaw = document.getElementById('task-budget').value.trim();
+      const budget = budgetRaw ? parseFloat(budgetRaw.replace(',', '.')) : null;
+      const nextOrdre = (tasks || []).length ? Math.max(...tasks.map((t) => t.ordre)) + 1 : 1;
+      await supabase.from('workspace_tasks').insert({
+        document_id: activeDocId, nom, responsable: responsable || null,
+        date_debut: date_debut || null, date_fin: date_fin || null,
+        budget: budget != null && !isNaN(budget) ? budget : null,
+        statut: 'non_demarre', ordre: nextOrdre,
+      });
+      openAddForm.task = false;
+      await render();
+    });
+
+    // ── Livrables ────────────────────────────────────────────────────────
+    content.querySelectorAll('.deliverable-check').forEach((cb) => {
+      cb.addEventListener('change', async () => {
+        cb.disabled = true;
+        await supabase.from('workspace_deliverables').update({ fait: cb.checked }).eq('id', cb.dataset.deliverableId);
+        await render();
+      });
+    });
+    content.querySelectorAll('#deliverables-list .file-delete[data-deliverable-id]').forEach((btn) => {
+      wireDeleteConfirm(btn, async () => {
+        await supabase.from('workspace_deliverables').delete().eq('id', btn.dataset.deliverableId);
+        await render();
+      });
+    });
+    document.getElementById('add-deliverable-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titre = document.getElementById('deliverable-titre').value.trim();
+      if (!titre) return;
+      const nextOrdre = (deliverables || []).length ? Math.max(...deliverables.map((d) => d.ordre)) + 1 : 1;
+      await supabase.from('workspace_deliverables').insert({ document_id: activeDocId, titre, ordre: nextOrdre });
+      openAddForm.deliverable = false;
+      await render();
+    });
+
+    // ── Priorités ────────────────────────────────────────────────────────
+    content.querySelectorAll('#priorities-list .file-delete[data-priority-id]').forEach((btn) => {
+      wireDeleteConfirm(btn, async () => {
+        await supabase.from('workspace_priorities').delete().eq('id', btn.dataset.priorityId);
+        await render();
+      });
+    });
+    document.getElementById('add-priority-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const contenu = document.getElementById('priority-contenu').value.trim();
+      if (!contenu) return;
+      const nextOrdre = (priorities || []).length ? Math.max(...priorities.map((p) => p.ordre)) + 1 : 1;
+      await supabase.from('workspace_priorities').insert({ document_id: activeDocId, contenu, ordre: nextOrdre });
+      openAddForm.priority = false;
+      await render();
+    });
+
+    // ── Jalons ───────────────────────────────────────────────────────────
+    content.querySelectorAll('.milestone-check').forEach((cb) => {
+      cb.addEventListener('change', async () => {
+        cb.disabled = true;
+        await supabase.from('workspace_milestones').update({ fait: cb.checked }).eq('id', cb.dataset.milestoneId);
+        await render();
+      });
+    });
+    content.querySelectorAll('#milestones-list .file-delete[data-milestone-id]').forEach((btn) => {
+      wireDeleteConfirm(btn, async () => {
+        await supabase.from('workspace_milestones').delete().eq('id', btn.dataset.milestoneId);
+        await render();
+      });
+    });
+    document.getElementById('add-milestone-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titre = document.getElementById('milestone-titre').value.trim();
+      if (!titre) return;
+      const nextOrdre = (milestones || []).length ? Math.max(...milestones.map((m) => m.ordre)) + 1 : 1;
+      await supabase.from('workspace_milestones').insert({ document_id: activeDocId, titre, ordre: nextOrdre });
+      openAddForm.milestone = false;
+      await render();
+    });
+
+    // ── Notes rapides (onglet "Notes" du panneau latéral) ──────────────────
+    const noteForm = document.getElementById('note-form');
+    if (noteForm) {
+      const noteTextarea = document.getElementById('note-textarea');
+      const noteSubmitBtn = document.getElementById('note-submit');
+      const noteCancelBtn = document.getElementById('note-cancel');
+      const noteFormLabel = document.getElementById('note-form-label');
+      const exitNoteEditMode = () => {
+        noteForm.dataset.editingId = '';
+        noteTextarea.value = '';
+        noteSubmitBtn.textContent = 'Ajouter';
+        noteFormLabel.textContent = 'Ajouter une note';
+        noteCancelBtn.style.display = 'none';
+      };
+      content.querySelectorAll('.note-edit').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const note = (notes || []).find((n) => n.id === btn.dataset.noteId);
+          if (!note) return;
+          noteForm.dataset.editingId = note.id;
+          noteTextarea.value = note.contenu;
+          noteSubmitBtn.textContent = 'Enregistrer';
+          noteFormLabel.textContent = 'Modifier la note';
+          noteCancelBtn.style.display = '';
+          noteTextarea.focus();
+        });
+      });
+      noteCancelBtn.addEventListener('click', exitNoteEditMode);
+      content.querySelectorAll('#notes-list .file-delete[data-note-id]').forEach((btn) => {
+        wireDeleteConfirm(btn, async () => {
+          await supabase.from('workspace_notes').delete().eq('id', btn.dataset.noteId);
+          await render();
+        });
+      });
+      noteForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const contenu = noteTextarea.value.trim();
+        if (!contenu) { showToast('Écrivez une note avant d\'ajouter.'); return; }
+        const editingId = noteForm.dataset.editingId;
+        if (editingId) {
+          await supabase.from('workspace_notes').update({ contenu }).eq('id', editingId);
+        } else {
+          await supabase.from('workspace_notes').insert({ document_id: activeDocId, contenu });
+        }
+        await render();
+      });
+    }
+  }
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await supabase.auth.signOut();
+  window.location.href = '/admin/';
+});
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('on');
+});
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+});
+</script>
+</body>
+</html>
